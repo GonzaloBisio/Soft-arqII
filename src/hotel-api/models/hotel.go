@@ -1,8 +1,9 @@
 package models
 
+import "gopkg.in/mgo.v2/bson"
+
 type Hotel struct {
-    ID          string `json:"id,omitempty"`
-    Name        string `json:"name"`
-    Description string `json:"description"`
-    // ... otros campos
+	ID          bson.ObjectId `bson:"_id" json:"id"`
+	Name        string        `bson:"name" json:"name"`
+	Description string        `bson:"description" json:"description"`
 }

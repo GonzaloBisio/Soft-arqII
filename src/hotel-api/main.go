@@ -1,20 +1,24 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
-
-	"../hotel-api/controllers"
-
-	"github.com/gorilla/mux"
 )
 
+func AllMoviesEndPoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "not implemented yet !")
+}
+
+func FindMovieEndpoint(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "cant find this particular hotel!")
+}
+
 func main() {
-    router := mux.NewRouter()
-
-    // Rutas para hoteles
-    router.HandleFunc("/hotels", controllers.CreateHotel).Methods("POST")
-    router.HandleFunc("/hotels/{id}", controllers.GetHotelByID).Methods("GET")
-    router.HandleFunc("/hotels/{id}", controllers.UpdateHotel).Methods("PUT")
-
-    http.ListenAndServe(":8080", router)
+	r := mux.NewRouter()
+	r.HandleFunc("/movies", AllMoviesEndPoint).Methods("GET")
+	r.HandleFunc("/movies/{id}", FindMovieEndpoint).Methods("GET")
+	if err := http.ListenAndServe(":3000", r); err != nil {
+		log.Fatal(err)
+	}
 }
