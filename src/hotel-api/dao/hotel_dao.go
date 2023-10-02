@@ -34,7 +34,7 @@ func (m *HotelesDAO) FindAll() ([]models.Hotels, error) {
 }
 
 func (m *HotelesDAO) FindById(id string) (models.Hotel, error) {
-	var movie Movie
+	var movie models.Hotel
 	err := db.C(COLLECTION).FindId(bson.ObjectIdHex(id)).One(&movie)
 	return movie, err
 }

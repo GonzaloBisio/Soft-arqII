@@ -3,21 +3,28 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/mgo.v2/bson"
-	"hotel-api/dao"
-	"hotel-api/models"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux" // Import the "gorilla/mux" package
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"hotel-api/dao"    // Replace with the correct import path to your dao package
+	"hotel-api/models" // Replace with the correct import path to your models package
 )
 
-func (m *dao.HotelesDAO) Insert(hotel models.Hotel) error {
-	err := db.C(dao.COLLECTION).Insert(&hotel)
-	return err
+var db *mgo.Database
+
+func init() {
+	// Initialize the MongoDB database connection in the init function
+	session, err := mgo.Dial("mongodb://localhost:27017/your-database-name")
+	if err != nil {
+		log.Fatal(err)
+	}
+	db = session.DB("your-database-name")
 }
 
-func AllMoviesEndPoint(w http.ResponseWriter, r *http.Request) {
+func AllHotelesEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "not implemented yet!")
 }
 
@@ -40,21 +47,24 @@ func CreateMovieEndPoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hotel.ID = bson.NewObjectId()
-	if err := dao.Insert(hotel); err != nil {
+
+	// Create an instance of HotelesDAO and then call the Insert method on it
+	daoInstance := &dao.HotelesDAO{} // Create an instance of HotelesDAO
+	if err := daoInstance.Insert(hotel); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondWithJson(w, http.StatusCreated, hotel)
+	respondWithJSON(w, http.StatusCreated, hotel)
 }
 
-func FindMovieEndpoint(w http.ResponseWriter, r *http.Request) {
+func FindHotelEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "can't find this particular hotel!")
 }
 
 func main() {
 	r := mux.NewRouter() // Create a new router using "gorilla/mux"
-	r.HandleFunc("/hoteles", AllMoviesEndPoint).Methods("GET")
-	r.HandleFunc("/hotel/{id}", FindMovieEndpoint).Methods("GET")
+	r.HandleFunc("/hoteles", AllHotelesEndpoint).Methods("GET")
+	r.HandleFunc("/hotel/{id}", FindHotelEndpoint).Methods("GET")
 	if err := http.ListenAndServe(":3000", r); err != nil {
 		log.Fatal(err)
 	}
