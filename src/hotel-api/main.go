@@ -17,11 +17,11 @@ var db *mgo.Database
 
 func init() {
 	// Initialize the MongoDB database connection in the init function
-	session, err := mgo.Dial("mongodb://localhost:27017/your-database-name")
+	session, err := mgo.Dial("127.0.0.1:27023")
 	if err != nil {
 		log.Fatal(err)
 	}
-	db = session.DB("your-database-name")
+	db = session.DB("proyecto-arquiII")
 }
 
 func AllHotelesEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -61,10 +61,32 @@ func FindHotelEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "can't find this particular hotel!")
 }
 
+func CreateHotelEndpoint(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	var hotel models.Hotel
+	if err := json.NewDecoder(r.Body).Decode(&hotel); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	hotel.ID = bson.NewObjectId()
+
+	// Create an instance of HotelesDAO and then call the Insert method on it
+	daoInstance := &dao.HotelesDAO{} // Create an instance of HotelesDAO
+	daoInstance.Connect()            // Connect to the MongoDB database
+
+	if err := daoInstance.Insert(hotel); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusCreated, hotel)
+}
 func main() {
 	r := mux.NewRouter() // Create a new router using "gorilla/mux"
 	r.HandleFunc("/hoteles", AllHotelesEndpoint).Methods("GET")
 	r.HandleFunc("/hotel/{id}", FindHotelEndpoint).Methods("GET")
+	r.HandleFunc("/hotel", CreateHotelEndpoint).Methods("POST")
 	if err := http.ListenAndServe(":3000", r); err != nil {
 		log.Fatal(err)
 	}
