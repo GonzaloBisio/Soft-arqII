@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/gorilla/mux v1.8.0
-	github.com/mlabouardy/movies-restapi v0.0.0-20171111141509-d336c4a6985e
 	go.mongodb.org/mongo-driver v1.12.1
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )
