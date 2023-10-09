@@ -10,10 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// HotelDAO define las operaciones de acceso a datos para los hoteles.
 type HotelDAO struct{}
 
-// GetAll obtiene todos los hoteles.
 func (dao *HotelDAO) GetAll() ([]models.Hotel, error) {
     db := db.MongoDB
     var hotels []models.Hotel
@@ -42,7 +40,6 @@ func (dao *HotelDAO) GetAll() ([]models.Hotel, error) {
     return hotels, nil
 }
 
-// GetHotelByID obtiene un hotel por su ID.
 func (dao *HotelDAO) GetHotelByID(id string) (models.Hotel, error) {
     db := db.MongoDB
     var hotel models.Hotel
@@ -62,7 +59,6 @@ func (dao *HotelDAO) GetHotelByID(id string) (models.Hotel, error) {
     return hotel, nil
 }
 
-// InsertHotel inserta un nuevo hotel.
 func (dao *HotelDAO) InsertHotel(hotel models.Hotel) (models.Hotel, error) {
     db := db.MongoDB
     insertHotel := hotel
