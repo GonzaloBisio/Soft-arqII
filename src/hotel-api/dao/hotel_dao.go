@@ -2,93 +2,84 @@ package dao
 
 import (
 	"context"
-	"fmt"
 	"hotel-api/models"
-	"hotel-api/utils/db"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type HotelDAO struct{}
+// MongoDB configuration
+var (
+    mongoHost     = "mongodb://localhost:27017" 
+    mongoDatabase = "proyecto-arquiII"  
+)
 
-func (dao *HotelDAO) GetAll() ([]models.Hotel, error) {
-    db := db.MongoDB
-    var hotels []models.Hotel
+// MongoDB client instance
+var Client *MongoClient
 
-    cursor, err := db.Collection("hotels").Find(context.TODO(), bson.D{})
+// MongoClient represents the MongoDB client.
+type MongoClient struct {
+    Collection *mongo.Collection
+}
+
+// InitializeMongoClient initializes the MongoDB client.
+func InitializeMongoClient() {
+    clientOptions := options.Client().ApplyURI(mongoHost)
+    client, err := mongo.Connect(context.Background(), clientOptions)
     if err != nil {
-        fmt.Println(err)
-        return hotels, err
+        log.Fatal(err)
     }
-    defer cursor.Close(context.TODO())
 
-    for cursor.Next(context.TODO()) {
+    collection := client.Database(mongoDatabase).Collection("hoteles")
+    Client = &MongoClient{
+        Collection: collection,
+    }
+}
+
+// GetAll retrieves all hotels from MongoDB.
+func (c *MongoClient) GetAll() ([]models.Hotel, error) {
+    var hotels []models.Hotel
+    cursor, err := c.Collection.Find(context.Background(), bson.M{})
+    if err != nil {
+        return nil, err
+    }
+    defer cursor.Close(context.Background())
+    for cursor.Next(context.Background()) {
         var hotel models.Hotel
-        if err := cursor.Decode(&hotel); err != nil {
-            fmt.Println(err)
-            return hotels, err
+        err := cursor.Decode(&hotel)
+        if err != nil {
+            return nil, err
         }
         hotels = append(hotels, hotel)
     }
-
-    if err := cursor.Err(); err != nil {
-        fmt.Println(err)
-        return hotels, err
-    }
-
     return hotels, nil
 }
 
-func (dao *HotelDAO) GetHotelByID(id string) (models.Hotel, error) {
-    db := db.MongoDB
-    var hotel models.Hotel
+// Insert inserts a new hotel into MongoDB.
+func (c *MongoClient) Insert(hotel models.Hotel) error {
+    _, err := c.Collection.InsertOne(context.Background(), hotel)
+    return err
+}
 
+// GetHotelById retrieves a hotel by its ID from MongoDB.
+func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
+    var hotel models.Hotel
     objID, err := primitive.ObjectIDFromHex(id)
     if err != nil {
-        fmt.Println(err)
         return hotel, err
     }
-
-    err = db.Collection("hotels").FindOne(context.TODO(), bson.D{{"_id", objID}}).Decode(&hotel)
-    if err != nil {
-        fmt.Println(err)
-        return hotel, err
-    }
-
-    return hotel, nil
+    err = c.Collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
+    return hotel, err
 }
 
-func (dao *HotelDAO) InsertHotel(hotel models.Hotel) (models.Hotel, error) {
-    db := db.MongoDB
-    insertHotel := hotel
-    insertHotel.ID = primitive.NewObjectID()
-
-    _, err := db.Collection("hotels").InsertOne(context.TODO(), &insertHotel)
+// Update updates a hotel in MongoDB.
+func (c *MongoClient) Update(hotel models.Hotel) error {
+    objID, err := primitive.ObjectIDFromHex(hotel.ID)
     if err != nil {
-        fmt.Println(err)
-        return hotel, err
+        return err
     }
-
-    return hotel, nil
-}
-
-// UpdateHotel actualiza un hotel.
-func (dao *HotelDAO) UpdateHotel(hotel models.Hotel) (models.Hotel, error) {
-    db := db.MongoDB
-    filter := bson.M{"_id": hotel.ID}
-    update := bson.M{
-        "$set": bson.M{
-            "name":        hotel.Name,
-            "description": hotel.Description,
-        },
-    }
-
-    _, err := db.Collection("hotels").UpdateOne(context.TODO(), filter, update)
-    if err != nil {
-        fmt.Println(err)
-        return hotel, err
-    }
-
-    return hotel, nil
+    _, err = c.Collection.ReplaceOne(context.Background(), bson.M{"_id": objID}, hotel)
+    return err
 }
