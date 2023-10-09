@@ -85,7 +85,7 @@ func (HotelClientInterface Client) GetById(id string) (models.Hotel, error) {
 	}
 
 	err = db.Collection("Hotels").FindOne(context.TODO(), bson.D{{"_id", objID}}).Decode(&hotel)
-	id err != nil {
+	if err != nil {
 		fmt.Println(err)
 		return hotel, err
 	}
