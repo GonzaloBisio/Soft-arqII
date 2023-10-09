@@ -66,22 +66,20 @@ func (c *MongoClient) Insert(hotel models.Hotel) error {
 // GetHotelById retrieves a hotel by its ID from MongoDB.
 func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
     var hotel models.Hotel
-    var err error
-    //objID, err := primitive.ObjectIDFromHex(id)
+    objID, err := primitive.ObjectIDFromHex(id)
     if err != nil {
         return hotel, err
     }
-    //err = c.Collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
+    err = c.Collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
     return hotel, err
 }
 
 // Update updates a hotel in MongoDB.
 func (c *MongoClient) Update(hotel models.Hotel) error {
-    //objID, err := primitive.ObjectIDFromHex(hotel.ID)
-    var err error
+    objID, err := primitive.ObjectIDFromHex(hotel.ID)
     if err != nil {
         return err
     }
-    //_, err = c.Collection.ReplaceOne(context.Background(), bson.M{"_id": objID}, hotel)
+    _, err = c.Collection.ReplaceOne(context.Background(), bson.M{"_id": objID}, hotel)
     return err
 }
