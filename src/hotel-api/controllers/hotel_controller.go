@@ -1,81 +1,56 @@
 package controllers
 
 import (
-	"encoding/json"
-	"net/http"
-
 	"hotel-api/models"
 	"hotel-api/services"
+	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-func CreateHotel(w http.ResponseWriter, r *http.Request) {
-    // Aquí puedes implementar la lógica para crear un nuevo hotel.
-    // Puedes usar el cuerpo de la solicitud (r.Body) para obtener los datos del hotel
-    // y luego utilizar el servicio HotelService para insertar el hotel en la base de datos.
-    // Por ejemplo:
-
+// CreateHotel crea un nuevo hotel.
+func CreateHotel(c *gin.Context) {
     var newHotel models.Hotel
-    err := json.NewDecoder(r.Body).Decode(&newHotel)
+    if err := c.ShouldBindJSON(&newHotel); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Error al decodificar la solicitud"})
+        return
+    }
+
+    createdHotel, err := services.HotelService.InsertHotel(newHotel)
     if err != nil {
-        http.Error(w, "Error al decodificar la solicitud", http.StatusBadRequest)
+        c.JSON(err.Status(), err)
         return
     }
 
-    // Llama a la función InsertHotel del servicio HotelService
-    createdHotel, apiErr := services.HotelService.InsertHotel(newHotel)
-    if apiErr != nil {
-        http.Error(w, apiErr.Message, apiErr.Status)
-        return
-    }
-
-    // Devuelve el hotel creado en la respuesta
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(createdHotel)
+    c.JSON(http.StatusCreated, createdHotel)
 }
 
-func GetHotelByID(w http.ResponseWriter, r *http.Request) {
-    // Aquí puedes implementar la lógica para obtener un hotel por su ID.
-    // Puedes utilizar el paquete "github.com/gorilla/mux" para obtener el ID desde
-    // la ruta de la solicitud (por ejemplo, r.URL.Path).
+// GetHotelByID obtiene un hotel por ID.
+func GetHotelByID(c *gin.Context) {
+    hotelID := c.Param("id")
 
-    vars := mux.Vars(r)
-    hotelID := vars["id"]
-
-    // Llama a la función GetHotelById del servicio HotelService
-    hotel, apiErr := services.HotelService.GetHotelById(hotelID)
-    if apiErr != nil {
-        http.Error(w, apiErr.Message, apiErr.Status)
+    hotel, err := services.HotelService.GetHotelByID(hotelID)
+    if err != nil {
+        c.JSON(err.Status(), err)
         return
     }
 
-    // Devuelve el hotel en la respuesta
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(hotel)
+    c.JSON(http.StatusOK, hotel)
 }
 
-func UpdateHotel(w http.ResponseWriter, r *http.Request) {
-    vars := mux.Vars(r)
-    hotelID := vars["id"]
-
+// UpdateHotel actualiza un hotel.
+func UpdateHotel(c *gin.Context) {
     var updatedHotel models.Hotel
-    err := json.NewDecoder(r.Body).Decode(&updatedHotel)
+    if err := c.ShouldBindJSON(&updatedHotel); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Error al decodificar la solicitud"})
+        return
+    }
+
+    updatedHotel, err := services.HotelService.UpdateHotel(updatedHotel)
     if err != nil {
-        http.Error(w, "Error al decodificar la solicitud", http.StatusBadRequest)
+        c.JSON(err.Status(), err)
         return
     }
 
-    // Asigna el ID del hotel a actualizar
-    updatedHotel.ID = bson.ObjectIdHex(hotelID)
-
-    // Llama a la función Update del servicio HotelService
-    updatedHotel, apiErr := services.HotelService.UpdateHotel(updatedHotel)
-    if apiErr != nil {
-        http.Error(w, apiErr.Message, apiErr.Status)
-        return
-    }
-
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(updatedHotel)
+    c.JSON(http.StatusOK, updatedHotel)
 }

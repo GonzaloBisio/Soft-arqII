@@ -4,130 +4,94 @@ import (
 	"context"
 	"fmt"
 	"hotel-api/models"
-	_ "hotel-api/models"
+	"hotel-api/utils/db"
 
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-/*
-type HotelesDAO struct {
-	Server   string
-	Database string
-}
-*/
+// HotelDAO define las operaciones de acceso a datos para los hoteles.
+type HotelDAO struct{}
 
-var (
-	Client HotelClientInterface
-)
+// GetAll obtiene todos los hoteles.
+func (dao *HotelDAO) GetAll() ([]models.Hotel, error) {
+    db := db.MongoDB
+    var hotels []models.Hotel
 
-type ProductionClient struct {}
-
-type HotelClientInterface interface {
-	GetAll() (models.Hotel, error)
-	GetById(id string) (models.Hotel, error)
-	Insert(hotel models.Hotel) (models.Hotel, error)
-	Update(hotel models.Hotel) (models.Hotel, error)
-}
-
-/*
-var db *mgo.Database
-
-const (
-	COLLECTION = "hoteles"
-)
-
-func (m *HotelesDAO) Connect() {
-	session, err := mgo.Dial(m.Server)
-	if err != nil {
-		log.Fatal(err)
-	}
-	db = session.DB(m.Database)
-}
-*/
-
-func (HotelClientInterface ProductionClient) GetAll() (models.Hotel, error) {
-	db := db.MongoDb 
-	var hotels models.Hotels
-
-	cursor, err := db.Collection("Hotels").Find(context.TODO(), bson.D{})
-	if err != nil {
-		fmt.Println(err)
-		return hotels, err
-	}
-
-	defer cursor.Close(context.TODO())
-
-	for cursor.Next(context.TODO()) {
-		var hotel models.Hotel
-		if err := cursor.Decode(&hotel); err != nil {
-			fmt.Println(err)
-			return hotels, err
-		}
-		hotels = append(hotels, hotel)
-	}
-
-	if err := cursor.Err(); err != nil {
-		fmt.Println(err)
-		return hotels, err
-	}
-
-	return hotels, nil
-}
-
-func (HotelClientInterface ProductionClient) GetById(id string) (models.Hotel, error) {
-	var hotel models.Hotel
-	db := db.MongoDb 
-
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		fmt.Println(err)
-		return hotel, err
-	}
-
-	err = db.Collection("Hotels").FindOne(context.TODO(), bson.D{{"_id", objID}}).Decode(&hotel)
-	if err != nil {
-		fmt.Println(err)
-		return hotel, err
-	}
-
-	return hotel, nil 
-
-}
-
-func (HotelClientInterface ProductionClient) Insert(hotel models.Hotel) (models.Hotel, error) {
-    db := db.MongoDb
-
-    // Aquí debes implementar la lógica para insertar un nuevo hotel en la base de datos.
-    // Puedes utilizar la función "InsertOne" del paquete "go.mongodb.org/mongo-driver/mongo".
-    // Por ejemplo:
-
-    insertResult, err := db.Collection("Hotels").InsertOne(context.TODO(), hotel)
+    cursor, err := db.Collection("hotels").Find(context.TODO(), bson.D{})
     if err != nil {
         fmt.Println(err)
-        return models.Hotel{}, err
+        return hotels, err
+    }
+    defer cursor.Close(context.TODO())
+
+    for cursor.Next(context.TODO()) {
+        var hotel models.Hotel
+        if err := cursor.Decode(&hotel); err != nil {
+            fmt.Println(err)
+            return hotels, err
+        }
+        hotels = append(hotels, hotel)
     }
 
-    // Si la inserción fue exitosa, puedes devolver el hotel insertado con su ID asignado
-    // (puedes obtener el ID desde "insertResult.InsertedID").
+    if err := cursor.Err(); err != nil {
+        fmt.Println(err)
+        return hotels, err
+    }
 
-    hotel.ID = insertResult.InsertedID.(primitive.ObjectID)
+    return hotels, nil
+}
+
+// GetHotelByID obtiene un hotel por su ID.
+func (dao *HotelDAO) GetHotelByID(id string) (models.Hotel, error) {
+    db := db.MongoDB
+    var hotel models.Hotel
+
+    objID, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
+        fmt.Println(err)
+        return hotel, err
+    }
+
+    err = db.Collection("hotels").FindOne(context.TODO(), bson.D{{"_id", objID}}).Decode(&hotel)
+    if err != nil {
+        fmt.Println(err)
+        return hotel, err
+    }
+
     return hotel, nil
 }
 
-func (HotelClientInterface ProductionClient) Update(hotel models.Hotel) (models.Hotel, error) {
-    db := db.MongoDb
+// InsertHotel inserta un nuevo hotel.
+func (dao *HotelDAO) InsertHotel(hotel models.Hotel) (models.Hotel, error) {
+    db := db.MongoDB
+    insertHotel := hotel
+    insertHotel.ID = primitive.NewObjectID()
 
-    // Aquí debes implementar la lógica para actualizar un hotel en la base de datos.
-    // Puedes utilizar la función "UpdateOne" del paquete "go.mongodb.org/mongo-driver/mongo".
-    // Por ejemplo:
-
-    filter := bson.D{{"_id", hotel.ID}}
-    update := bson.D{{"$set", bson.D{{"name", hotel.Name}, {"description", hotel.Description}}}}
-
-    _, err := db.Collection("Hotels").UpdateOne(context.TODO(), filter, update)
+    _, err := db.Collection("hotels").InsertOne(context.TODO(), &insertHotel)
     if err != nil {
         fmt.Println(err)
-        return models.Hotel{}, err
+        return hotel, err
+    }
+
+    return hotel, nil
+}
+
+// UpdateHotel actualiza un hotel.
+func (dao *HotelDAO) UpdateHotel(hotel models.Hotel) (models.Hotel, error) {
+    db := db.MongoDB
+    filter := bson.M{"_id": hotel.ID}
+    update := bson.M{
+        "$set": bson.M{
+            "name":        hotel.Name,
+            "description": hotel.Description,
+        },
+    }
+
+    _, err := db.Collection("hotels").UpdateOne(context.TODO(), filter, update)
+    if err != nil {
+        fmt.Println(err)
+        return hotel, err
     }
 
     return hotel, nil
