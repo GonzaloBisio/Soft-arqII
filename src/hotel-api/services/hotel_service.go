@@ -13,10 +13,10 @@ type HotelService struct {
 }
 
 type hotelServiceInterface interface {
-	GetHotels()(models.Hotels, e.ApiError)
-	GetHotelById(id string) (models.Hotel, e.ApiError)
-	InsertHotel(Hotel models.Hotel) (models.Hotel, e.ApiError)
-	UpdateHotel(Hotel models.Hotel) (models.Hotel, e.ApiError)
+	GetHotels()(models.Hotels, errors.ApiError)
+	GetHotelById(id string) (models.Hotel, errors.ApiError)
+	InsertHotel(Hotel models.Hotel) (models.Hotel, errors.ApiError)
+	UpdateHotel(Hotel models.Hotel) (models.Hotel, errors.ApiError)
 }
 
 var(
