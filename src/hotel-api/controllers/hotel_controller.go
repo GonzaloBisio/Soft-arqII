@@ -56,9 +56,26 @@ func GetHotelByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateHotel(w http.ResponseWriter, r *http.Request) {
-    // Aquí puedes implementar la lógica para actualizar un hotel en la base de datos.
-    // Similar a la función CreateHotel, debes obtener los datos del hotel del cuerpo
-    // de la solicitud y luego utilizar el servicio HotelService para realizar la actualización.
-}
+    vars := mux.Vars(r)
+    hotelID := vars["id"]
 
-// ... otros controladores
+    var updatedHotel models.Hotel
+    err := json.NewDecoder(r.Body).Decode(&updatedHotel)
+    if err != nil {
+        http.Error(w, "Error al decodificar la solicitud", http.StatusBadRequest)
+        return
+    }
+
+    // Asigna el ID del hotel a actualizar
+    updatedHotel.ID = bson.ObjectIdHex(hotelID)
+
+    // Llama a la función Update del servicio HotelService
+    updatedHotel, apiErr := services.HotelService.UpdateHotel(updatedHotel)
+    if apiErr != nil {
+        http.Error(w, apiErr.Message, apiErr.Status)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(updatedHotel)
+}

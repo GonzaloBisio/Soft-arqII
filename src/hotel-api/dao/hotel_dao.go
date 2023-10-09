@@ -93,3 +93,42 @@ func (HotelClientInterface ProductionClient) GetById(id string) (models.Hotel, e
 	return hotel, nil 
 
 }
+
+func (HotelClientInterface ProductionClient) Insert(hotel models.Hotel) (models.Hotel, error) {
+    db := db.MongoDb
+
+    // Aquí debes implementar la lógica para insertar un nuevo hotel en la base de datos.
+    // Puedes utilizar la función "InsertOne" del paquete "go.mongodb.org/mongo-driver/mongo".
+    // Por ejemplo:
+
+    insertResult, err := db.Collection("Hotels").InsertOne(context.TODO(), hotel)
+    if err != nil {
+        fmt.Println(err)
+        return models.Hotel{}, err
+    }
+
+    // Si la inserción fue exitosa, puedes devolver el hotel insertado con su ID asignado
+    // (puedes obtener el ID desde "insertResult.InsertedID").
+
+    hotel.ID = insertResult.InsertedID.(primitive.ObjectID)
+    return hotel, nil
+}
+
+func (HotelClientInterface ProductionClient) Update(hotel models.Hotel) (models.Hotel, error) {
+    db := db.MongoDb
+
+    // Aquí debes implementar la lógica para actualizar un hotel en la base de datos.
+    // Puedes utilizar la función "UpdateOne" del paquete "go.mongodb.org/mongo-driver/mongo".
+    // Por ejemplo:
+
+    filter := bson.D{{"_id", hotel.ID}}
+    update := bson.D{{"$set", bson.D{{"name", hotel.Name}, {"description", hotel.Description}}}}
+
+    _, err := db.Collection("Hotels").UpdateOne(context.TODO(), filter, update)
+    if err != nil {
+        fmt.Println(err)
+        return models.Hotel{}, err
+    }
+
+    return hotel, nil
+}
