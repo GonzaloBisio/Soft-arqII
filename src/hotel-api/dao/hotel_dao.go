@@ -20,7 +20,7 @@ var (
 	Client HotelClientInterface
 )
 
-type Client struct {}
+type ProductionClient struct {}
 
 type HotelClientInterface interface {
 	GetAll() (models.Hotel, error)
@@ -45,7 +45,7 @@ func (m *HotelesDAO) Connect() {
 }
 */
 
-func (HotelClientInterface Client) GetAll() (models.Hotel, error) {
+func (HotelClientInterface ProductionClient) GetAll() (models.Hotel, error) {
 	db := db.MongoDb 
 	var hotels models.Hotels
 
@@ -74,7 +74,7 @@ func (HotelClientInterface Client) GetAll() (models.Hotel, error) {
 	return hotels, nil
 }
 
-func (HotelClientInterface Client) GetById(id string) (models.Hotel, error) {
+func (HotelClientInterface ProductionClient) GetById(id string) (models.Hotel, error) {
 	var hotel models.Hotel
 	db := db.MongoDb 
 

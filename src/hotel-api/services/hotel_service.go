@@ -65,3 +65,5 @@ func (s *HotelService) GetHotelById (id string)(dtos.Hotel, e.ApiError){
 	return hotelDto, nil
 }
 
+
+
