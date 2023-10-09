@@ -1,18 +1,35 @@
 package dao
 
 import (
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"context"
+	"fmt"
 	"hotel-api/models"
 	_ "hotel-api/models"
-	"log"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
+/*
 type HotelesDAO struct {
 	Server   string
 	Database string
 }
+*/
 
+var (
+	Client HotelClientInterface
+)
+
+type Client struct {}
+
+type HotelClientInterface interface {
+	GetAll() (models.Hotel, error)
+	GetById(id string) (models.Hotel, error)
+	Insert(hotel models.Hotel) (models.Hotel, error)
+	Update(hotel models.Hotel) (models.Hotel, error)
+}
+
+/*
 var db *mgo.Database
 
 const (
@@ -26,30 +43,53 @@ func (m *HotelesDAO) Connect() {
 	}
 	db = session.DB(m.Database)
 }
+*/
 
-func (m *HotelesDAO) FindAll() ([]models.Hotels, error) {
-	var movies []models.Hotels
-	err := db.C(COLLECTION).Find(bson.M{}).All(&movies)
-	return movies, err
+func (HotelClientInterface Client) GetAll() (models.Hotel, error) {
+	db := db.MongoDb 
+	var hotels models.Hotels
+
+	cursor, err := db.Collection("Hotels").Find(context.TODO(), bson.D{})
+	if err != nil {
+		fmt.Println(err)
+		return hotels, err
+	}
+
+	defer cursor.Close(context.TODO())
+
+	for cursor.Next(context.TODO()) {
+		var hotel models.Hotel
+		if err := cursor.Decode(&hotel); err != nil {
+			fmt.Println(err)
+			return hotels, err
+		}
+		hotels = append(hotels, hotel)
+	}
+
+	if err := cursor.Err(); err != nil {
+		fmt.Println(err)
+		return hotels, err
+	}
+
+	return hotels, nil
 }
 
-func (m *HotelesDAO) FindById(id string) (models.Hotel, error) {
-	var movie models.Hotel
-	err := db.C(COLLECTION).FindId(bson.ObjectIdHex(id)).One(&movie)
-	return movie, err
-}
+func (HotelClientInterface Client) GetById(id string) (models.Hotel, error) {
+	var hotel models.Hotel
+	db := db.MongoDb 
 
-func (m *HotelesDAO) Insert(movie models.Hotel) error {
-	err := db.C(COLLECTION).Insert(&movie)
-	return err
-}
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println(err)
+		return hotel, err
+	}
 
-func (m *HotelesDAO) Delete(movie models.Hotel) error {
-	err := db.C(COLLECTION).Remove(&movie)
-	return err
-}
+	err = db.Collection("Hotels").FindOne(context.TODO(), bson.D{{"_id", objID}}).Decode(&hotel)
+	id err != nil {
+		fmt.Println(err)
+		return hotel, err
+	}
 
-func (m *HotelesDAO) Update(movie models.Hotel) error {
-	err := db.C(COLLECTION).UpdateId(movie.ID, &movie)
-	return err
+	return hotel, nil 
+
 }

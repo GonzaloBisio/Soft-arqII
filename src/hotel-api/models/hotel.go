@@ -8,4 +8,6 @@ type Hotel struct {
 	Description string        `bson:"description" json:"description"`
 }
 
-type Hotels []Hotel
+type Hotels struct{
+	Hotels []Hotel `json:"hotels"`
+}
