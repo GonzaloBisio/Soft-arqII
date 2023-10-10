@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -38,7 +39,6 @@ func InitializeMongoClient() {
     }
 }
 
-// GetAll retrieves all hotels from MongoDB.
 func (c *MongoClient) GetAll() ([]models.Hotel, error) {
     var hotels []models.Hotel
     cursor, err := c.Collection.Find(context.Background(), bson.M{})
@@ -57,13 +57,11 @@ func (c *MongoClient) GetAll() ([]models.Hotel, error) {
     return hotels, nil
 }
 
-// Insert inserts a new hotel into MongoDB.
 func (c *MongoClient) Insert(hotel models.Hotel) error {
     _, err := c.Collection.InsertOne(context.Background(), hotel)
     return err
 }
 
-// GetHotelById retrieves a hotel by its ID from MongoDB.
 func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
     var hotel models.Hotel
     objID, err := primitive.ObjectIDFromHex(id)
@@ -74,12 +72,8 @@ func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
     return hotel, err
 }
 
-// Update updates a hotel in MongoDB.
 func (c *MongoClient) Update(hotel models.Hotel) error {
-    objID, err := primitive.ObjectIDFromHex(hotel.ID)
-    if err != nil {
-        return err
-    }
-    _, err = c.Collection.ReplaceOne(context.Background(), bson.M{"_id": objID}, hotel)
+    _, err := c.Collection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
     return err
 }
+
