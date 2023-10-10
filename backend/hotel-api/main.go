@@ -17,7 +17,7 @@ func init() {
     dao.InitializeMongoClient()
 
     // Configura la conexión a RabbitMQ
-    rabbitMQURL := "amqp://tu_usuario:tu_contraseña@localhost:5672/"
+    rabbitMQURL := "amqp://user:password@localhost:5672/"
     var err error
     rabbitMQConn, err = amqp.Dial(rabbitMQURL)
     if err != nil {
