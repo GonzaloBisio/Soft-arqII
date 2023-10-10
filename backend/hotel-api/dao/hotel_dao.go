@@ -14,8 +14,8 @@ import (
 
 // MongoDB configuration
 var (
-    mongoHost     = "mongodb://localhost:27017" 
-    mongoDatabase = "proyecto-arquiII"  
+	mongoHost     = "mongodb://localhost:27017"
+	mongoDatabase = "proyecto-arquiII"
 )
 
 // MongoDB client instance
@@ -23,69 +23,70 @@ var Client *MongoClient
 
 // MongoClient represents the MongoDB client.
 type MongoClient struct {
-    Collection *mongo.Collection
+	Collection *mongo.Collection
 }
 
 // InitializeMongoClient initializes the MongoDB client.
 func InitializeMongoClient() {
-    clientOptions := options.Client().ApplyURI(mongoHost)
-    client, err := mongo.Connect(context.Background(), clientOptions)
-    if err != nil {
-        log.Fatal(err)
-    }
+	clientOptions := options.Client().ApplyURI(mongoHost)
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    collection := client.Database(mongoDatabase).Collection("hoteles")
-    Client = &MongoClient{
-        Collection: collection,
-    }
+	collection := client.Database(mongoDatabase).Collection("hoteles")
+	Client = &MongoClient{
+		Collection: collection,
+	}
 }
 
 func (c *MongoClient) GetAll() ([]models.Hotel, error) {
-    var hotels []models.Hotel
-    cursor, err := c.Collection.Find(context.Background(), bson.M{})
-    if err != nil {
-        return nil, err
-    }
-    defer cursor.Close(context.Background())
-    for cursor.Next(context.Background()) {
-        var hotel models.Hotel
-        err := cursor.Decode(&hotel)
-        if err != nil {
-            return nil, err
-        }
-        hotels = append(hotels, hotel)
-    }
-    return hotels, nil
+	var hotels []models.Hotel
+	cursor, err := c.Collection.Find(context.Background(), bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+	for cursor.Next(context.Background()) {
+		var hotel models.Hotel
+		err := cursor.Decode(&hotel)
+		if err != nil {
+			return nil, err
+		}
+		hotels = append(hotels, hotel)
+	}
+	return hotels, nil
 }
 
-func (c *MongoClient) Insert(hotel models.Hotel) error {
-    _, err := c.Collection.InsertOne(context.Background(), hotel)
-    if err != nil {
-        return err
-    }
-    return nil
+func (c *MongoClient) Insert(hotel models.Hotel) (models.Hotel, error) {
+	_, err := c.Collection.InsertOne(context.Background(), hotel)
+
+	var cosa models.Hotel
+	if err != nil {
+		return cosa, err
+	}
+	return cosa, nil
 }
 
 func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
-    var hotel models.Hotel
-    objID, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        return hotel, err
-    }
-    err = c.Collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
-    return hotel, err
+	var hotel models.Hotel
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return hotel, err
+	}
+	err = c.Collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
+	return hotel, err
 }
 
 func (c *MongoClient) Update(hotel models.Hotel) error {
-    result, err := c.Collection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
-    if err != nil {
-        //error durante la actualizacoin
-        return err
-    }
-    if result.MatchedCount == 0 {
-        // Si no existe lo que queremos actualizar
-        return errors.New("No se encontró ningún documento para actualizar")
-    }
-    return nil
+	result, err := c.Collection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
+	if err != nil {
+		//error durante la actualizacoin
+		return err
+	}
+	if result.MatchedCount == 0 {
+		// Si no existe lo que queremos actualizar
+		return errors.New("No se encontró ningún documento para actualizar")
+	}
+	return nil
 }
-

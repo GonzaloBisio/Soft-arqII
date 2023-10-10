@@ -9,26 +9,26 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type HotelService struct {
+type hotelService struct {
 	Collection *mongo.Collection
 }
 
 type hotelServiceInterface interface {
 	GetHotels() (models.Hotels, errors.ApiError)
 	GetHotelById(id string) (models.Hotel, errors.ApiError)
-	InsertHotel(hotel models.Hotel) errors.ApiError
+	InsertHotel(hotel models.Hotel) (models.Hotel, errors.ApiError)
 	UpdateHotel(hotel models.Hotel) errors.ApiError
 }
 
 var (
-	hotelService hotelServiceInterface
+	HotelService hotelServiceInterface
 )
 
 func init() {
-	hotelService = &HotelService{}
+	HotelService = &hotelService{}
 }
 
-func (s *HotelService) GetHotels() (models.Hotels, errors.ApiError) {
+func (s *hotelService) GetHotels() (models.Hotels, errors.ApiError) {
 	hotels, err := dao.Client.GetAll()
 	if err != nil {
 		return models.Hotels{}, errors.NewInternalServerApiError("Ningun hotel encontrado", err)
@@ -51,36 +51,35 @@ func (s *HotelService) GetHotels() (models.Hotels, errors.ApiError) {
 	return final, nil
 }
 
-func (s *HotelService) GetHotelById(id string) (models.Hotel, errors.ApiError) {
-    objectID, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        return models.Hotel{}, errors.NewBadRequestApiError("ID de hotel inválido")
-    }
-
-    hotel, err := dao.Client.GetHotelById(objectID.Hex()) // Convierte ObjectID a cadena
-    if err != nil {
-        return models.Hotel{}, errors.NewInternalServerApiError("Ningun hotel existente con ese ID", err)
-    }
-
-    hotelDto := models.Hotel{
-        ID:          hotel.ID,
-        Name:        hotel.Name,
-        Description: hotel.Description,
-    }
-
-    return hotelDto, nil
-}
-
-
-func (s *HotelService) InsertHotel(hotel models.Hotel) errors.ApiError {
-	err := dao.Client.Insert(hotel)
+func (s *hotelService) GetHotelById(id string) (models.Hotel, errors.ApiError) {
+	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return errors.NewInternalServerApiError("Error al insertar el hotel en la base de datos", err)
+		return models.Hotel{}, errors.NewBadRequestApiError("ID de hotel inválido")
 	}
-	return nil
+
+	hotel, err := dao.Client.GetHotelById(objectID.Hex()) // Convierte ObjectID a cadena
+	if err != nil {
+		return models.Hotel{}, errors.NewInternalServerApiError("Ningun hotel existente con ese ID", err)
+	}
+
+	hotelDto := models.Hotel{
+		ID:          hotel.ID,
+		Name:        hotel.Name,
+		Description: hotel.Description,
+	}
+
+	return hotelDto, nil
 }
 
-func (s *HotelService) UpdateHotel(hotel models.Hotel) errors.ApiError {
+func (s *hotelService) InsertHotel(hotel models.Hotel) (models.Hotel, errors.ApiError) {
+	newHotel, err := dao.Client.Insert(hotel)
+	if err != nil {
+		return newHotel, errors.NewInternalServerApiError("Error al insertar el hotel en la base de datos", err)
+	}
+	return newHotel, nil
+}
+
+func (s *hotelService) UpdateHotel(hotel models.Hotel) errors.ApiError {
 	err := dao.Client.Update(hotel)
 	if err != nil {
 		return errors.NewInternalServerApiError("Error al actualizar el hotel en la base de datos", err)
