@@ -57,12 +57,18 @@ func (c *MongoClient) GetAll() ([]models.Hotel, error) {
     return hotels, nil
 }
 
-func (c *MongoClient) Insert(hotel models.Hotel) error {
-    _, err := c.Collection.InsertOne(context.Background(), hotel)
+func (c *MongoClient) Insert(hotel models.Hotel) (models.Hotel, error) {
+	request, err := c.Collection.InsertOne(context.Background(), hotel)
+
     if err != nil {
-        return err
+        return hotel, err
     }
-    return nil
+    
+    // La inserción fue exitosa, devuelve el hotel con su ID actualizado
+    insertedHotel := hotel
+    insertedHotel.ID = request.InsertedID.(primitive.ObjectID)
+    
+    return insertedHotel, nil
 }
 
 func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
