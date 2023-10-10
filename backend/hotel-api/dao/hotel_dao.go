@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-	"errors"
 	"hotel-api/models"
 	"log"
 
@@ -77,14 +76,10 @@ func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
 }
 
 func (c *MongoClient) Update(hotel models.Hotel) (models.Hotel, error) {
-	result, err := c.Collection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
+	_, err := c.Collection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
 	if err != nil {
 		return models.Hotel{}, err
 	}
-	if result.MatchedCount == 0 {
-		return models.Hotel{}, errors.New("No se encontró ningún documento para actualizar")
-	}
 	return hotel, nil
 }
-
 

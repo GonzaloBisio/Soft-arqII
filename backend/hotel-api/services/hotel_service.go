@@ -51,25 +51,20 @@ func (s *hotelService) GetHotels() (models.Hotels, errors.ApiError) {
 	return final, nil
 }
 
-func (s *hotelService) GetHotelById(id string) (models.Hotel, errors.ApiError) {
+func (s *hotelService) GetHotelByID(id string) (models.Hotel, error) {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return models.Hotel{}, errors.NewBadRequestApiError("ID de hotel inválido")
+		return models.Hotel{}, err
 	}
 
 	hotel, err := dao.Client.GetHotelById(objectID.Hex()) // Convierte ObjectID a cadena
 	if err != nil {
-		return models.Hotel{}, errors.NewInternalServerApiError("Ningun hotel existente con ese ID", err)
+		return models.Hotel{}, err
 	}
 
-	hotelDto := models.Hotel{
-		ID:          hotel.ID,
-		Name:        hotel.Name,
-		Description: hotel.Description,
-	}
-
-	return hotelDto, nil
+	return hotel, nil
 }
+
 
 func (s *hotelService) InsertHotel(hotel models.Hotel) (models.Hotel, errors.ApiError) {
 	err := dao.Client.Insert(hotel)
@@ -80,7 +75,8 @@ func (s *hotelService) InsertHotel(hotel models.Hotel) (models.Hotel, errors.Api
 }
 
 func (s *hotelService) UpdateHotel(hotel models.Hotel) (models.Hotel, errors.ApiError) {
- 	err := dao.Client.Update(hotel)
+ 	
+	_, err := dao.Client.Update(hotel)
 	if err != nil {
 		return models.Hotel{}, errors.NewInternalServerApiError("Error al actualizar el hotel en la base de datos", err)
 	}
