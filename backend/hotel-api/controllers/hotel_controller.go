@@ -16,7 +16,7 @@ func CreateHotel(c *gin.Context) {
         return
     }
 
-    createdHotel, err := services.HotelService.InsertHotel(newHotel)
+    createdHotel, err := services.HotelService.InsertHotel(newHotel) 
     if err != nil {
         c.JSON(err.Status(), err)
         return
