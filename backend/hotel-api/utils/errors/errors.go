@@ -24,6 +24,33 @@ type apiErr struct {
 	ErrorCause   CauseList `json:"cause"`
 }
 
+type RabbitMQError struct {
+    ErrorMessage string    `json:"message"`
+    ErrorCode    string    `json:"error"`
+    ErrorStatus  int       `json:"status"`
+    ErrorCause   CauseList `json:"cause"`
+}
+
+func (e RabbitMQError) Code() string {
+    return e.ErrorCode
+}
+
+func (e RabbitMQError) Error() string {
+    return fmt.Sprintf("Message: %s;Error Code: %s;Status: %d;Cause: %v", e.ErrorMessage, e.ErrorCode, e.ErrorStatus, e.ErrorCause)
+}
+
+func (e RabbitMQError) Status() int {
+    return e.ErrorStatus
+}
+
+func (e RabbitMQError) Cause() CauseList {
+    return e.ErrorCause
+}
+
+func (e RabbitMQError) Message() string {
+    return e.ErrorMessage
+}
+
 func (c CauseList) ToString() string {
 	return fmt.Sprint(c)
 }
@@ -46,6 +73,10 @@ func (e apiErr) Cause() CauseList {
 
 func (e apiErr) Message() string {
 	return e.ErrorMessage
+}
+
+func NewRabbitMQError(message string, status int, cause CauseList) ApiError {
+    return RabbitMQError{message, "rabbitmq_error", status, cause}
 }
 
 func NewApiError(message string, error string, status int, cause CauseList) ApiError {

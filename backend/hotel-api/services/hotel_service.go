@@ -17,7 +17,7 @@ type hotelServiceInterface interface {
 	GetHotels() (models.Hotels, errors.ApiError)
 	GetHotelById(id string) (models.Hotel, errors.ApiError)
 	InsertHotel(hotel models.Hotel) (models.Hotel, errors.ApiError)
-	UpdateHotel(hotel models.Hotel) errors.ApiError
+	UpdateHotel(hotel models.Hotel) (models.Hotel, errors.ApiError)
 }
 
 var (
@@ -72,17 +72,17 @@ func (s *hotelService) GetHotelById(id string) (models.Hotel, errors.ApiError) {
 }
 
 func (s *hotelService) InsertHotel(hotel models.Hotel) (models.Hotel, errors.ApiError) {
-	newHotel, err := dao.Client.Insert(hotel)
+	err := dao.Client.Insert(hotel)
 	if err != nil {
-		return newHotel, errors.NewInternalServerApiError("Error al insertar el hotel en la base de datos", err)
+		return models.Hotel{}, errors.NewInternalServerApiError("Error al insertar el hotel en la base de datos", err)
 	}
-	return newHotel, nil
+	return hotel, nil
 }
 
-func (s *hotelService) UpdateHotel(hotel models.Hotel) errors.ApiError {
-	err := dao.Client.Update(hotel)
+func (s *hotelService) UpdateHotel(hotel models.Hotel) (models.Hotel, errors.ApiError) {
+ 	err := dao.Client.Update(hotel)
 	if err != nil {
-		return errors.NewInternalServerApiError("Error al actualizar el hotel en la base de datos", err)
+		return models.Hotel{}, errors.NewInternalServerApiError("Error al actualizar el hotel en la base de datos", err)
 	}
-	return nil
+	return hotel, nil
 }

@@ -2,11 +2,13 @@ package queue
 
 import (
 	"log"
+	"net/http"
+
+	"hotel-api/utils/errors"
 
 	"github.com/streadway/amqp"
 )
 
-// la configuracion de rabbit
 type RabbitMQConfig struct {
 	Username string
 	Password string
@@ -14,23 +16,22 @@ type RabbitMQConfig struct {
 	Port     string
 }
 
-// esto representa lo que seria una ocla de RabbitMQ
+// Representa una cola de RabbitMQ
 type RabbitMQQueue struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
 	config  RabbitMQConfig
 }
 
-// instancia de RabbitMQQueue.
-func NewRabbitMQQueue(config RabbitMQConfig) (*RabbitMQQueue, error) {
+func NewRabbitMQQueue(config RabbitMQConfig) (*RabbitMQQueue, errors.ApiError) {
 	conn, err := amqp.Dial("amqp://" + config.Username + ":" + config.Password + "@" + config.Host + ":" + config.Port + "/")
 	if err != nil {
-		return nil, err
+		return nil, errors.NewRabbitMQError("Error al conectar a RabbitMQ", http.StatusInternalServerError, errors.CauseList{err.Error()})
 	}
 
 	channel, err := conn.Channel()
 	if err != nil {
-		return nil, err
+		return nil, errors.NewRabbitMQError("Error al abrir el canal de RabbitMQ", http.StatusInternalServerError, errors.CauseList{err.Error()})
 	}
 
 	return &RabbitMQQueue{
@@ -40,7 +41,7 @@ func NewRabbitMQQueue(config RabbitMQConfig) (*RabbitMQQueue, error) {
 	}, nil
 }
 
-func (q *RabbitMQQueue) PublishMessage(queueName, message string) error {
+func (q *RabbitMQQueue) PublishMessage(queueName, message string) errors.ApiError {
 	_, err := q.channel.QueueDeclare(
 		queueName, // Nombre de la cola
 		false,     // Durable
@@ -50,7 +51,7 @@ func (q *RabbitMQQueue) PublishMessage(queueName, message string) error {
 		nil,       // Args
 	)
 	if err != nil {
-		return err
+		return errors.NewRabbitMQError("Error al declarar la cola de RabbitMQ", http.StatusInternalServerError, errors.CauseList{err.Error()})
 	}
 
 	// Publica el mensaje en la cola
@@ -65,7 +66,7 @@ func (q *RabbitMQQueue) PublishMessage(queueName, message string) error {
 		},
 	)
 	if err != nil {
-		return err
+		return errors.NewRabbitMQError("Error al publicar el mensaje en la cola de RabbitMQ", http.StatusInternalServerError, errors.CauseList{err.Error()})
 	}
 
 	log.Printf("Mensaje enviado a la cola %s: %s", queueName, message)
