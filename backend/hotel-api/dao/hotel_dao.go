@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"hotel-api/models"
 	"log"
 
@@ -59,7 +60,10 @@ func (c *MongoClient) GetAll() ([]models.Hotel, error) {
 
 func (c *MongoClient) Insert(hotel models.Hotel) error {
     _, err := c.Collection.InsertOne(context.Background(), hotel)
-    return err
+    if err != nil {
+        return err
+    }
+    return nil
 }
 
 func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
@@ -73,7 +77,15 @@ func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
 }
 
 func (c *MongoClient) Update(hotel models.Hotel) error {
-    _, err := c.Collection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
-    return err
+    result, err := c.Collection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
+    if err != nil {
+        //error durante la actualizacoin
+        return err
+    }
+    if result.MatchedCount == 0 {
+        // Si no existe lo que queremos actualizar
+        return errors.New("No se encontró ningún documento para actualizar")
+    }
+    return nil
 }
 
