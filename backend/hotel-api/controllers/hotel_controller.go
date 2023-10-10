@@ -24,8 +24,8 @@ func CreateHotel(c *gin.Context) {
 
     // Configura la conexión a RabbitMQ
     rabbitMQConfig := queue.RabbitMQConfig{
-        Username: "tu_usuario",
-        Password: "tu_contraseña",
+        Username: "user",
+        Password: "password",
         Host:     "localhost",
         Port:     "5672",
     }
@@ -36,11 +36,8 @@ func CreateHotel(c *gin.Context) {
     }
     defer rabbitMQ.Close()
 
-    //Este es el mensaje que se envia a la cola
     message := "Se creó un nuevo hotel: " + createdHotel.Name
-    // Nombre de la cola
     queueName := "hotel_creation"
-    // Envia el mensaje a la cola
     err = rabbitMQ.PublishMessage(queueName, message)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al enviar mensaje a la cola RabbitMQ"})
