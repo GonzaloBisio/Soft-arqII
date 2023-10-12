@@ -4,7 +4,7 @@ import (
 	"search-api/daos"
 	"search-api/dtos"
 	"search-api/models"
-	e "search-api/utils/errors" //no se porque me tira error en la importación.
+	e "serch-api/utils/errors" //no se porque me tira error en la importación.
 )
 
 type hotelService struct{}
@@ -14,8 +14,8 @@ type hotelServiceInterface interface {
 	GetHotelByID(id string) (dtos.HotelDto, e.ApiError)
 	CreateHotel(hotel models.Hotel) (dtos.HotelDto, e.ApiError)
 	UpdateHotel(hotel models.Hotel) (dtos.HotelDto, e.ApiError)
-	GetByCity(city string) (dtos.HotelsDto, e.ApiError)
-	GetByAvailability(city string, checkIn string, checkOut string) (dtos.HotelsDto, e.ApiError)
+	//GetByCity(city string) (dtos.HotelsDto, e.ApiError)
+	//GetByAvailability(city string, checkIn string, checkOut string) (dtos.HotelsDto, e.ApiError)
 }
 
 var (
@@ -64,7 +64,7 @@ func (s *hotelService) GetHotelByID(id string) (dtos.HotelDto, e.ApiError) {
 	return hotelDto, nil
 }
 
-func CreateHotel(hotel models.Hotel) (dtos.HotelDto, e.ApiError) {
+func (s *hotelService) CreateHotel(hotel models.Hotel) (dtos.HotelDto, e.ApiError) {
 	hotelClient := daos.NewHotelSolrDAO()
 	err := hotelClient.Create(&hotel)
 	if err != nil {
