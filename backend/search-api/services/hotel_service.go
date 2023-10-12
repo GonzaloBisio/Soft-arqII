@@ -3,7 +3,6 @@ package services
 import (
 	"search-api/daos"
 	"search-api/dtos"
-	"search-api/models"
 	e "serch-api/utils/errors" //no se porque me tira error en la importación.
 )
 
@@ -12,8 +11,8 @@ type hotelService struct{}
 type hotelServiceInterface interface {
 	GetAllHotels() (dtos.HotelsDto, e.ApiError)
 	GetHotelByID(id string) (dtos.HotelDto, e.ApiError)
-	CreateHotel(hoteldto dtos.HotelDto) (dtos.HotelDto, e.ApiError)
-	UpdateHotel(hoteldto dtos.HotelDto) (dtos.HotelDto, e.ApiError)
+	CreateHotel(hotel dtos.HotelDto) (dtos.HotelDto, e.ApiError)
+	UpdateHotel(hotel dtos.HotelDto) (dtos.HotelDto, e.ApiError)
 	//GetByCity(city string) (dtos.HotelsDto, e.ApiError)
 	//GetByAvailability(city string, checkIn string, checkOut string) (dtos.HotelsDto, e.ApiError)
 }
@@ -39,8 +38,11 @@ func (s *hotelService) GetAllHotels() (dtos.HotelsDto, e.ApiError) {
 		hotelDto := dtos.HotelDto{
 			ID:          hotel.ID,
 			Name:        hotel.Name,
+			City:        hotel.City,
 			Description: hotel.Description,
-			//aca habria que agregar mas campos en el dto para que queden todos bien, teniendo en cuenta fechas, disponibilidad, ciudad, etc
+			Thumbnail:   hotel.Thumbnail,
+			Images:      hotel.Images,
+			Amenities:   hotel.Amenities,
 		}
 		hotelDtos.Hotels = append(hotelDtos.Hotels, hotelDto)
 	}
@@ -58,13 +60,17 @@ func (s *hotelService) GetHotelByID(id string) (dtos.HotelDto, e.ApiError) {
 	hotelDto := dtos.HotelDto{
 		ID:          hotel.ID,
 		Name:        hotel.Name,
+		City:        hotel.City,
 		Description: hotel.Description,
+		Thumbnail:   hotel.Thumbnail,
+		Images:      hotel.Images,
+		Amenities:   hotel.Amenities,
 	}
 
 	return hotelDto, nil
 }
 
-func (s *hotelService) CreateHotel(hotel models.Hotel) (dtos.HotelDto, e.ApiError) {
+func (s *hotelService) CreateHotel(hotel dtos.HotelDto) (dtos.HotelDto, e.ApiError) {
 	hotelClient := daos.NewHotelSolrDAO()
 	err := hotelClient.Create(&hotel)
 	if err != nil {
@@ -74,13 +80,17 @@ func (s *hotelService) CreateHotel(hotel models.Hotel) (dtos.HotelDto, e.ApiErro
 	hotelDto := dtos.HotelDto{
 		ID:          hotel.ID,
 		Name:        hotel.Name,
+		City:        hotel.City,
 		Description: hotel.Description,
+		Thumbnail:   hotel.Thumbnail,
+		Images:      hotel.Images,
+		Amenities:   hotel.Amenities,
 	}
 
 	return hotelDto, nil
 }
 
-func (s *hotelService) UpdateHotel(hotel models.Hotel) (dtos.HotelDto, e.ApiError) {
+func (s *hotelService) UpdateHotel(hotel dtos.HotelDto) (dtos.HotelDto, e.ApiError) {
 	hotelClient := daos.NewHotelSolrDAO()
 	err := hotelClient.Update(&hotel)
 	if err != nil {
@@ -90,7 +100,11 @@ func (s *hotelService) UpdateHotel(hotel models.Hotel) (dtos.HotelDto, e.ApiErro
 	hotelDto := dtos.HotelDto{
 		ID:          hotel.ID,
 		Name:        hotel.Name,
+		City:        hotel.City,
 		Description: hotel.Description,
+		Thumbnail:   hotel.Thumbnail,
+		Images:      hotel.Images,
+		Amenities:   hotel.Amenities,
 	}
 
 	return hotelDto, nil

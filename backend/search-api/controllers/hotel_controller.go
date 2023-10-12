@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 	"search-api/dtos"
-	"search-api/models"
 	"search-api/services"
 	e "search-api/utils/errors"
 
@@ -32,7 +31,7 @@ func GetHotelByID(c *gin.Context){
 }
 
 func CreateHotel(c *gin.Context){
-	var hotel models.Hotel
+	var hotel dtos.HotelDto
 	if err := c.ShouldBindJSON(&hotel); err != nil {
 		apiErr := e.NewBadRequestApiError("Datos invalidos")
 		c.JSON(apiErr.Status(), apiErr)
