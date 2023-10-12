@@ -5,7 +5,6 @@ type HotelDto struct {
     Name        string `json:"name"`
     Description string `json:"description"`
     City        string `json:"city"`
-    // Otros campos que necesites
 }
 
 type HotelsDto struct {
