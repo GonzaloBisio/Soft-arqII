@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"search-api/dtos"
 	"search-api/models"
 	"search-api/services"
 	e "search-api/utils/errors"
@@ -49,19 +50,44 @@ func CreateHotel(c *gin.Context){
 
 func UpdateHotel(c *gin.Context) {
 	hotelID := c.Param("id")
-	var hotel models.Hotel
-	if err := c.ShouldBindJSON(&hotel); err != nil {
-		apiErr := e.NewBadRequestApiError("Datos inválidos")
-		c.JSON(apiErr.Status(), apiErr)
-		return
-	}
-
-	hotel.ID = hotelID
-	updatedHotel, err := services.HotelService.UpdateHotel(hotel)
+	updatedHotel, err := services.HotelService.GetHotelByID(hotelID)
 	if err != nil {
 		c.JSON(err.Status(), err)
-		return
+		return 
+	}
+
+	var hotelDto dtos.HotelDto
+
+	if err := c.ShouldBindJSON(&hotelDto); err != nil {
+		apiErr := e.NewBadRequestApiError("Pedido no valido")
+		c.JSON(apiErr.Status(), apiErr)
+		return 
+	}
+
+	updatedHotel.Name = hotelDto.Name
+	updatedHotel.Description = hotelDto.Description
+
+	_, err = services.HotelService.UpdateHotel(updatedHotel)
+	if err != nil {
+		apiErr := e.NewBadRequestApiError("Error al actualizar el Hotel")
+		c.JSON(apiErr.Status(), apiErr)
+		return 
 	}
 
 	c.JSON(http.StatusOK, updatedHotel)
 }
+
+
+/*
+func GetHotelsByCity(c *gin.Context) {
+	city := c.Param("city")
+	hotelsDto, err := services.HotelService.GetHotelsByCity(city)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, hotelsDto)
+	return
+}
+*/
