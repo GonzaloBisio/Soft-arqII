@@ -9,6 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Configura la conexión a RabbitMQ
+var RabbitMQConfig = queue.RabbitMQConfig{
+	Username: "user",
+	Password: "password",
+	Host:     "localhost",
+	Port:     "5672",
+}
+
 func CreateHotel(c *gin.Context) {
 	var newHotel models.Hotel
 	if err := c.ShouldBindJSON(&newHotel); err != nil {
@@ -22,14 +30,7 @@ func CreateHotel(c *gin.Context) {
 		return
 	}
 
-	// Configura la conexión a RabbitMQ
-	rabbitMQConfig := queue.RabbitMQConfig{
-		Username: "user",
-		Password: "password",
-		Host:     "localhost",
-		Port:     "5672",
-	}
-	rabbitMQ, err := queue.NewRabbitMQQueue(rabbitMQConfig)
+	rabbitMQ, err := queue.NewRabbitMQQueue(RabbitMQConfig)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al configurar RabbitMQ"})
 		return
