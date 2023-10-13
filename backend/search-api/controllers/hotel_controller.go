@@ -3,8 +3,8 @@ package controllers
 import (
 	"net/http"
 	"search-api/dtos"
+	e "search-api/errors"
 	"search-api/services"
-	e "search-api/utils/errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -64,7 +64,11 @@ func UpdateHotel(c *gin.Context) {
 	}
 
 	updatedHotel.Name = hotelDto.Name
+	updatedHotel.City = hotelDto.City
 	updatedHotel.Description = hotelDto.Description
+	updatedHotel.Thumbnail = hotelDto.Thumbnail
+	updatedHotel.Images = hotelDto.Images
+	updatedHotel.Amenities = hotelDto.Amenities
 
 	_, err = services.HotelService.UpdateHotel(updatedHotel)
 	if err != nil {

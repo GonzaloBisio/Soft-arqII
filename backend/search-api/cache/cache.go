@@ -11,7 +11,7 @@ var (
 )
 
 func InitCache() {
-	cacheClient = memcache.New("localhost:11211")
+	cacheClient = memcache.New("localhost:") // aca faltaria ponerle el puerto
 }
 
 func Get(key string) []byte {

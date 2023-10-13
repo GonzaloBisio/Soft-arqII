@@ -2,17 +2,17 @@ package daos
 
 import (
 	"fmt"
+	db "search-api/db"
 	model "search-api/models"
-	"search-api/utils/db"
 
 	solr "github.com/rtt/Go-Solr"
 )
 
 type HotelDao interface {
-    Get(id string) (*model.Hotel, error)
-    Create(hotel *model.Hotel) error
-    Update(hotel *model.Hotel) error
-    GetAll() ([]*model.Hotel, error)
+    GetById(id string) (*model.Hotel, error)
+    CreateHotel(hotel *model.Hotel) error
+    UpdateHotel(hotel *model.Hotel) error
+    GetAllHotels() ([]*model.Hotel, error)
     GetByCity(city string) ([]*model.Hotel, error)
 }
 
@@ -22,7 +22,7 @@ func NewHotelSolrDAO() HotelDao {
     return &HotelSolrDao{}
 }
 
-func (dao *HotelSolrDao) Get(id string) (*model.Hotel, error) {
+func (dao *HotelSolrDao) GetById(id string) (*model.Hotel, error) {
     q := &solr.Query{
         Params: solr.URLParamMap{
             "q":    []string{fmt.Sprintf("id:%s", id)},
@@ -30,30 +30,30 @@ func (dao *HotelSolrDao) Get(id string) (*model.Hotel, error) {
         },
     }
 
-    res, err := db.SolrClient.Search(q)
+    res, err := db.SolrClient.Select(q)
     if err != nil {
         return nil, err
     }
 
-    if len(res.Results.Docs) > 0 {
-        doc := res.Results.Docs[0]
-        hotel := &model.Hotel{
-            ID:          doc["id"].(string),
-            Name:        doc["name"].(string),
-            City:        doc["city"].(string),
-            Description: doc["description"].(string),
-            Thumbnail:   doc["thumbnail"].(string),
-            Images:      doc["images"].([]string),
-            Amenities:   doc["amenities"].([]string),
-        }
-        return hotel, nil
-    }
+    if len(res.Results.Collection) > 0 {
+		doc := res.Results.Collection[0]
+		hotel := &model.Hotel{
+			ID:          doc.Fields["id"].(string),
+			Name:        doc.Field("name").([]interface{})[0].(string),
+			City:        doc.Field("city").([]interface{})[0].(string),
+			Description: doc.Field("description").([]interface{})[0].(string),
+			Thumbnail:   doc.Field("thumbnail").([]interface{})[0].(string),
+			Images:      getStringsFromInterface(doc.Field("images")),
+			Amenities:   getStringsFromInterface(doc.Field("amenities")),
+		}
+		return hotel, nil
+	}
 
     return nil, fmt.Errorf("Hotel not found")
 }
 
-func (dao *HotelSolrDao) Create(hotel *model.Hotel) error {
-    // Crear un mapa que representa el documento del hotel
+func (dao *HotelSolrDao) CreateHotel(hotel *model.Hotel) error {
+    // documento que representa el hotel
     hotelDocument := map[string]interface{}{
         "add": []interface{}{
             map[string]interface{}{
@@ -77,8 +77,7 @@ func (dao *HotelSolrDao) Create(hotel *model.Hotel) error {
 }
 
 
-func (dao *HotelSolrDao) Update(hotel *model.Hotel) error {
-    // Crear un mapa que representa los cambios en el documento del hotel
+func (dao *HotelSolrDao) UpdateHotel(hotel *model.Hotel) error {
     hotelDocument := map[string]interface{}{
         "update": []interface{}{
             map[string]interface{}{
@@ -102,7 +101,7 @@ func (dao *HotelSolrDao) Update(hotel *model.Hotel) error {
 }
 
 
-func (dao *HotelSolrDao) GetAll() ([]*model.Hotel, error) {
+func (dao *HotelSolrDao) GetAllHotels() ([]*model.Hotel, error) {
     q := &solr.Query{
         Params: solr.URLParamMap{
             "q":   []string{"*:*"},
@@ -110,27 +109,28 @@ func (dao *HotelSolrDao) GetAll() ([]*model.Hotel, error) {
         },
     }
 
-    res, err := db.SolrClient.Search(q)
+    res, err := db.SolrClient.Select(q)
     if err != nil {
         return nil, err
     }
 
     var hotels []*model.Hotel
-    for _, doc := range res.Results.Docs {
+    for _, doc := range res.Results.Collection {
         hotel := &model.Hotel{
-            ID:          doc["id"].(string),
-            Name:        doc["name"].(string),
-            City:        doc["city"].(string),
-            Description: doc["description"].(string),
-            Thumbnail:   doc["thumbnail"].(string),
-            Images:      doc["images"].([]string),
-            Amenities:   doc["amenities"].([]string),
+            ID:          doc.Fields["id"].(string),
+            Name:        doc.Field("name").([]interface{})[0].(string),
+            City:        doc.Field("city").([]interface{})[0].(string),
+            Description: doc.Field("description").([]interface{})[0].(string),
+            Thumbnail:   doc.Field("thumbnail").([]interface{})[0].(string),
+            Images:      getStringsFromInterface(doc.Field("images")),
+            Amenities:   getStringsFromInterface(doc.Field("amenities")),
         }
         hotels = append(hotels, hotel)
     }
 
     return hotels, nil
 }
+
 
 func (dao *HotelSolrDao) GetByCity(city string) ([]*model.Hotel, error) {
     q := &solr.Query{
@@ -140,21 +140,21 @@ func (dao *HotelSolrDao) GetByCity(city string) ([]*model.Hotel, error) {
         },
     }
 
-    res, err := db.SolrClient.Search(q)
+    res, err := db.SolrClient.Select(q)
     if err != nil {
         return nil, err
     }
 
     var hotels []*model.Hotel
-    for _, doc := range res.Results.Docs {
+    for _, doc := range res.Results.Collection {
         hotel := &model.Hotel{
-            ID:          doc["id"].(string),
-            Name:        doc["name"].(string),
-            City:        doc["city"].(string),
-            Description: doc["description"].(string),
-            Thumbnail:   doc["thumbnail"].(string),
-            Images:      doc["images"].([]string),
-            Amenities:   doc["amenities"].([]string),
+            ID:          doc.Fields["id"].(string),
+            Name:        doc.Field("name").([]interface{})[0].(string),
+            City:        doc.Field("city").([]interface{})[0].(string),
+            Description: doc.Field("description").([]interface{})[0].(string),
+            Thumbnail:   doc.Field("thumbnail").([]interface{})[0].(string),
+            Images:      getStringsFromInterface(doc.Field("images")),
+            Amenities:   getStringsFromInterface(doc.Field("amenities")),
         }
         hotels = append(hotels, hotel)
     }
@@ -164,3 +164,18 @@ func (dao *HotelSolrDao) GetByCity(city string) ([]*model.Hotel, error) {
 
 
 //quedaria hacer segun disponibilidad 
+
+//esto sirve para usar en la funciones de arriba, para tratar algunos campos como listas,
+//entonces se toma el primer elemento digamos para luego obtener todo el valor de la cadena completa
+func getStringsFromInterface(data interface{}) []string {
+    if dataSlice, ok := data.([]interface{}); ok {
+        result := make([]string, len(dataSlice))
+        for i, item := range dataSlice {
+            if str, isString := item.(string); isString {
+                result[i] = str
+            }
+        }
+        return result
+    }
+    return []string{}
+}
