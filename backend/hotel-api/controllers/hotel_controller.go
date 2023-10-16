@@ -75,13 +75,7 @@ func UpdateHotel(c *gin.Context) {
 		return
 	}
 
-	rabbitMQConfig := queue.RabbitMQConfig{
-		Username: "tu_usuario",
-		Password: "tu_contraseña",
-		Host:     "localhost",
-		Port:     "5672",
-	}
-	rabbitMQ, err := queue.NewRabbitMQQueue(rabbitMQConfig)
+	rabbitMQ, err := queue.NewRabbitMQQueue(RabbitMQConfig)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al configurar RabbitMQ"})
 		return
