@@ -4,6 +4,7 @@ import (
 	"hotel-api/models"
 	"hotel-api/services"
 	"hotel-api/utils/queue"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,7 @@ var RabbitMQConfig = queue.RabbitMQConfig{
 }
 
 func CreateHotel(c *gin.Context) {
+	log.Println("Aca llegue perros")
 	var newHotel models.Hotel
 	if err := c.ShouldBindJSON(&newHotel); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Error al decodificar la solicitud"})

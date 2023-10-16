@@ -1,18 +1,18 @@
 package main
 
 import (
+	app "hotel-api/app"
 	"hotel-api/dao"
 	"log"
-	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/streadway/amqp"
 )
 
-var rabbitMQConn *amqp.Connection
 var rabbitMQCh *amqp.Channel
+var rabbitMQConn *amqp.Connection
 
 func init() {
+
 	// Inicializa el cliente MongoDB
 	dao.InitializeMongoClient()
 
@@ -41,12 +41,11 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }
 
 func main() {
-	R := mux.NewRouter()
 
-	if err := http.ListenAndServe(":3000", R); err != nil {
-		log.Fatal(err)
-	}
+	app.StartApp()
+
 }
