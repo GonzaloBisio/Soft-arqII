@@ -1,11 +1,14 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
 
 type Reserva struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	FechaIni string             `bson:"fechaIni" json:"fechaIni"`
-	FechaFin string             `bson:"fechaFin" json:"fechaFin"`
+	FechaIni time.Time          `bson:"fechaIni" json:"fechaIni"`
+	FechaFin time.Time          `bson:"fechaFin" json:"fechaFin"`
 }
 type Hotel struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
