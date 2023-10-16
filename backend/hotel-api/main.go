@@ -44,9 +44,9 @@ func init() {
 }
 
 func main() {
-	r := mux.NewRouter()
-	log.Println("Hola")
-	if err := http.ListenAndServe(":3000", r); err != nil {
+	R := mux.NewRouter()
+
+	if err := http.ListenAndServe(":3000", R); err != nil {
 		log.Fatal(err)
 	}
 }
