@@ -15,8 +15,8 @@ func mapUrls() {
 		routerAdmin.Use(AdminTokenMiddleware())
 	*/
 	//Hotel
-	router.GET("/hotelId/", hotelc.CreateHotel)
-	router.POST("/insertHotel", hotelc.GetHotelByID)
+	router.GET("/hotelId/:id", hotelc.GetHotelByID)
+	router.POST("/insertHotel", hotelc.CreateHotel)
 
 	log.Info("Urls Cargadas")
 }
