@@ -40,6 +40,7 @@ func StartReceiving() {
 		nil,      // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
+
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
