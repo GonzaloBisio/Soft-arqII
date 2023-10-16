@@ -1,8 +1,6 @@
 package router
 
 import (
-	hotController "search-api/controllers"
-
 	"github.com/gin-gonic/gin"
 )
 
