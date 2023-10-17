@@ -1,12 +1,13 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"hotel-api/models"
 	"hotel-api/services"
 	"hotel-api/utils/queue"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CreateReserva(c *gin.Context) {
@@ -41,6 +42,7 @@ func CreateReserva(c *gin.Context) {
 		c.JSON(http.StatusCreated, createdReserva)
 	}*/
 }
+
 func GetReservaById(c *gin.Context) {
 	ReservaId := c.Param("id")
 
