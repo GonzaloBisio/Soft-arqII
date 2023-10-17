@@ -29,6 +29,7 @@ var (
 	ReservaService reservaServiceInterface
 )
 
-func init() {
+/*func init() {
 	ReservaService = &reservaService{}
 }
+*/

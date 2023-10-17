@@ -17,11 +17,11 @@ func CreateReserva(c *gin.Context) {
 		return
 	}
 
-	createdReserva, err := services.HotelService.InsertReserva(newReserva)
+	/*createdReserva, err := services.HotelService.InsertReserva(newReserva)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
-	}
+	}*/
 
 	rabbitMQ, err := queue.NewRabbitMQQueue(RabbitMQConfig)
 	if err != nil {
@@ -30,17 +30,17 @@ func CreateReserva(c *gin.Context) {
 	}
 	defer rabbitMQ.Close()
 
-	message := "Se creó una nueva reserva: " + createdReserva.FechaIni.Format("2006-01-02") + " - " + createdReserva.FechaFin.Format("2006-01-02")
-	queueName := "reserva_creation"
-	err = rabbitMQ.PublishMessage(queueName, message)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al enviar mensaje a la cola RabbitMQ"})
-		return
-	}
+	/*message := "Se creó una nueva reserva: " + createdReserva.FechaIni.Format("2006-01-02") + " - " + createdReserva.FechaFin.Format("2006-01-02")
+		queueName := "reserva_creation"
+		err = rabbitMQ.PublishMessage(queueName, message)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al enviar mensaje a la cola RabbitMQ"})
+			return
+		}
 
-	c.JSON(http.StatusCreated, createdReserva)
+		c.JSON(http.StatusCreated, createdReserva)
+	}*/
 }
-
 func GetReservaById(c *gin.Context) {
 	ReservaId := c.Param("id")
 
