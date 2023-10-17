@@ -34,7 +34,7 @@ func init() {
 		log.Println("Rabit Canal creado")
 	}
 
-	// Declara las colas de RabbitMQ según tus necesidades
+	// Declara las colas de RabbitMQ para la creacion de hoteles
 	queueName := "hotel_creation"
 	_, err = rabbitMQCh.QueueDeclare(queueName, false, false, false, false, nil)
 	if err != nil {
