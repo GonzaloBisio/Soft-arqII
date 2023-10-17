@@ -2,46 +2,42 @@ package dao
 
 import (
 	"context"
-	"hotel-api/models"
-	"log"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	mg "hotel-api/app"
+	"hotel-api/models"
+	"log"
 )
 
-// MongoDB configuration
-var (
-	mongoHost     = "mongodb://localhost:27017"
-	mongoDatabase = "proyecto-arquiII"
-)
-
-// MongoDB client instance
-var Client *MongoClient
-
-// MongoClient represents the MongoDB client.
-type MongoClient struct {
+type HotelDAO struct {
 	Collection *mongo.Collection
 }
 
-// InitializeMongoClient initializes the MongoDB client.
-func InitializeMongoClient() {
-	clientOptions := options.Client().ApplyURI(mongoHost)
-	client, err := mongo.Connect(context.Background(), clientOptions)
-	if err != nil {
-		log.Fatal(err)
+// InitializeHotelDAO creates a new HotelDAO with the specified collection name.
+func (c *HotelDAO) InitializeHotelDAO(collectionName string) *HotelDAO {
+	var collection *mongo.Collection
+
+	if collectionName == "hoteles" {
+		collection = mg.Client.HotelCollection
+	} else if collectionName == "images" {
+		collection = mg.Client.ImageCollection
+	} else {
+		log.Fatal("Invalid collection name")
 	}
 
-	collection := client.Database(mongoDatabase).Collection("hoteles")
-	Client = &MongoClient{
+	if collection == nil {
+		log.Fatal("MongoDB collection not initialized")
+	}
+
+	return &HotelDAO{
 		Collection: collection,
 	}
 }
 
-func (c *MongoClient) GetAll() ([]models.Hotel, error) {
+func (c *HotelDAO) GetAll() ([]models.Hotel, error) {
 	var hotels []models.Hotel
-	cursor, err := c.Collection.Find(context.Background(), bson.M{})
+	cursor, err := mg.Client.HotelCollection.Find(context.Background(), bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -57,33 +53,33 @@ func (c *MongoClient) GetAll() ([]models.Hotel, error) {
 	return hotels, nil
 }
 
-func (c *MongoClient) Insert(hotel models.Hotel) (models.Hotel, error) {
-	// Omitimos configurar el campo _id
-	request, err := c.Collection.InsertOne(context.Background(), hotel)
+func (c *HotelDAO) Insert(hotel models.Hotel) (models.Hotel, error) {
+	// Omit configuring the _id field
+	request, err := mg.Client.HotelCollection.InsertOne(context.Background(), hotel)
 
 	if err != nil {
 		return hotel, err
 	}
 
-	// La inserción fue exitosa, devuelve el hotel con su ID actualizado
+	// The insertion was successful, return the hotel with its updated ID
 	insertedHotel := hotel
 	insertedHotel.ID = request.InsertedID.(primitive.ObjectID)
 
 	return insertedHotel, nil
 }
 
-func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
+func (c *HotelDAO) GetHotelById(id string) (models.Hotel, error) {
 	var hotel models.Hotel
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return hotel, err
 	}
-	err = c.Collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
+	err = mg.Client.HotelCollection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
 	return hotel, err
 }
 
-func (c *MongoClient) Update(hotel models.Hotel) (models.Hotel, error) {
-	_, err := c.Collection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
+func (c *HotelDAO) Update(hotel models.Hotel) (models.Hotel, error) {
+	_, err := mg.Client.HotelCollection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
 	if err != nil {
 		return models.Hotel{}, err
 	}

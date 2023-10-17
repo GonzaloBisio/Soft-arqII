@@ -1,7 +1,6 @@
 package app
 
 import (
-	"hotel-api/dao"
 	"log"
 
 	"github.com/streadway/amqp"
@@ -13,7 +12,7 @@ var rabbitMQConn *amqp.Connection
 func init() {
 
 	// Inicializa el cliente MongoDB
-	dao.InitializeMongoClient()
+	InitializeMongoClient()
 
 	// Configura la conexión a RabbitMQ
 	rabbitMQURL := "amqp://user:password@localhost:5672/"
