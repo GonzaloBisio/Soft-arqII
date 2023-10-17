@@ -1,7 +1,7 @@
 package app
 
 import (
-	hotelc "hotel-api/controllers"
+	controllers "hotel-api/controllers"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -14,9 +14,14 @@ func mapUrls() {
 		routerAdmin := router.Group("/admin")
 		routerAdmin.Use(AdminTokenMiddleware())
 	*/
+
+	//Reservas
+	router.GET("/ReservaId/:id", controllers.GetReservaById)
+	router.POST("/insertReserva", controllers.CreateReserva)
+
 	//Hotel
-	router.GET("/hotelId/:id", hotelc.GetHotelByID)
-	router.POST("/insertHotel", hotelc.CreateHotel)
+	router.GET("/hotelId/:id", controllers.GetHotelByID)
+	router.POST("/insertHotel", controllers.CreateHotel)
 
 	log.Info("Urls Cargadas")
 }
