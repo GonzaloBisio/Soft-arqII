@@ -11,9 +11,6 @@ var rabbitMQConn *amqp.Connection
 
 func init() {
 
-	// Inicializa el cliente MongoDB
-	InitializeMongoClient()
-
 	// Configura la conexión a RabbitMQ
 	rabbitMQURL := "amqp://user:password@localhost:5672/"
 	var err error

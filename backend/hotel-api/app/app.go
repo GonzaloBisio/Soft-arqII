@@ -3,6 +3,8 @@ package app
 import (
 	"os"
 
+	db "hotel-api/db"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -29,6 +31,9 @@ func init() {
 }
 
 func StartApp() {
+
+	// Inicializa el cliente MongoDB
+	db.InitializeMongoClient()
 
 	mapUrls()
 

@@ -1,7 +1,7 @@
 package services
 
 import (
-	"hotel-api/dao"
+	dao "hotel-api/dao"
 	"hotel-api/models"
 	"hotel-api/utils/errors"
 
@@ -29,7 +29,7 @@ func init() {
 }
 
 func (s *hotelService) GetHotels() (models.Hotels, errors.ApiError) {
-	hotels, err := dao.Client.GetAll()
+	hotels, err := dao.GetAll()
 	if err != nil {
 		return models.Hotels{}, errors.NewInternalServerApiError("Ningun hotel encontrado", err)
 	}
@@ -57,7 +57,7 @@ func (s *hotelService) GetHotelById(id string) (models.Hotel, errors.ApiError) {
 		return models.Hotel{}, errors.NewBadRequestApiError(err.Error())
 	}
 
-	hotel, err := dao.Client.GetHotelById(objectID.Hex()) // Convierte ObjectID a cadena
+	hotel, err := dao.GetHotelById(objectID.Hex()) // Convierte ObjectID a cadena
 	if err != nil {
 		return models.Hotel{}, errors.NewBadRequestApiError(err.Error())
 	}
@@ -67,7 +67,7 @@ func (s *hotelService) GetHotelById(id string) (models.Hotel, errors.ApiError) {
 
 func (s *hotelService) InsertHotel(hotel models.Hotel) (models.Hotel, errors.ApiError) {
 
-	hotelInsertado, err := dao.Client.Insert(hotel)
+	hotelInsertado, err := dao.Insert(hotel)
 
 	if err != nil {
 		return hotel, errors.NewInternalServerApiError("Error al insertar el hotel en la base de datos", err)
@@ -77,7 +77,7 @@ func (s *hotelService) InsertHotel(hotel models.Hotel) (models.Hotel, errors.Api
 
 func (s *hotelService) UpdateHotel(hotel models.Hotel) (models.Hotel, errors.ApiError) {
 
-	_, err := dao.Client.Update(hotel)
+	_, err := dao.Update(hotel)
 	if err != nil {
 		return models.Hotel{}, errors.NewInternalServerApiError("Error al actualizar el hotel en la base de datos", err)
 	}
