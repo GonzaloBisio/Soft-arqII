@@ -93,3 +93,14 @@ func UpdateHotel(c *gin.Context) {
 
 	c.JSON(http.StatusOK, updatedHotel)
 }
+
+func GetHotels(c *gin.Context) {
+	hotels, err := services.HotelService.GetHotels()
+
+	if err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	c.JSON(http.StatusOK, hotels)
+}

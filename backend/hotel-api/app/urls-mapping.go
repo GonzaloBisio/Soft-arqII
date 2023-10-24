@@ -7,13 +7,6 @@ import (
 )
 
 func mapUrls() {
-	/*
-		routerUsuario := router.Group("/usuario")
-		routerUsuario.Use(TokenMiddleware())
-
-		routerAdmin := router.Group("/admin")
-		routerAdmin.Use(AdminTokenMiddleware())
-	*/
 
 	//Reservas
 	router.GET("/ReservaId/:id", controllers.GetReservaById)
@@ -22,6 +15,7 @@ func mapUrls() {
 	//Hotel
 	router.GET("/hotelId/:id", controllers.GetHotelByID)
 	router.POST("/insertHotel", controllers.CreateHotel)
+	router.GET("/getHotels", controllers.GetHotels)
 
 	log.Info("Urls Cargadas")
 }
