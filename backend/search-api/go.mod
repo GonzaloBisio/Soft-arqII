@@ -4,10 +4,12 @@ go 1.20
 
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/json-iterator/go v1.1.12
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/rtt/Go-Solr v0.0.0-20190512221613-64fac99dcae2
+	github.com/sirupsen/logrus v1.9.3
 )
 
 require (

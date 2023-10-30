@@ -1,10 +1,10 @@
-package router
+package app
 
 import (
-	"github.com/gin-gonic/gin"
+	hotController "search-api/controllers"
 )
 
-func MapUrls(router *gin.Engine) {
+func mapUrls() {
 	router.GET("/hotel", hotController.GetAllHotels)
 	router.GET("/hotel/:id", hotController.GetHotelByID)
 	router.POST("/hotel", hotController.CreateHotel)
