@@ -2,90 +2,60 @@ package dao
 
 import (
 	"context"
+	db "hotel-api/db"
 	"hotel-api/models"
-	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// MongoDB configuration
-var (
-    mongoHost     = "mongodb://localhost:27017" 
-    mongoDatabase = "proyecto-arquiII"  
-)
-
-// MongoDB client instance
-var Client *MongoClient
-
-// MongoClient represents the MongoDB client.
-type MongoClient struct {
-    Collection *mongo.Collection
+func GetAll() ([]models.Hotel, error) {
+	var hotels []models.Hotel
+	cursor, err := db.Client.HotelCollection.Find(context.Background(), bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+	for cursor.Next(context.Background()) {
+		var hotel models.Hotel
+		err := cursor.Decode(&hotel)
+		if err != nil {
+			return nil, err
+		}
+		hotels = append(hotels, hotel)
+	}
+	return hotels, nil
 }
 
-// InitializeMongoClient initializes the MongoDB client.
-func InitializeMongoClient() {
-    clientOptions := options.Client().ApplyURI(mongoHost)
-    client, err := mongo.Connect(context.Background(), clientOptions)
-    if err != nil {
-        log.Fatal(err)
-    }
+func Insert(hotel models.Hotel) (models.Hotel, error) {
+	// Omit configuring the _id field
+	request, err := db.Client.HotelCollection.InsertOne(context.Background(), hotel)
 
-    collection := client.Database(mongoDatabase).Collection("hoteles")
-    Client = &MongoClient{
-        Collection: collection,
-    }
+	if err != nil {
+		return hotel, err
+	}
+
+	// The insertion was successful, return the hotel with its updated ID
+	insertedHotel := hotel
+	insertedHotel.ID = request.InsertedID.(primitive.ObjectID)
+
+	return insertedHotel, nil
 }
 
-func (c *MongoClient) GetAll() ([]models.Hotel, error) {
-    var hotels []models.Hotel
-    cursor, err := c.Collection.Find(context.Background(), bson.M{})
-    if err != nil {
-        return nil, err
-    }
-    defer cursor.Close(context.Background())
-    for cursor.Next(context.Background()) {
-        var hotel models.Hotel
-        err := cursor.Decode(&hotel)
-        if err != nil {
-            return nil, err
-        }
-        hotels = append(hotels, hotel)
-    }
-    return hotels, nil
+func GetHotelById(id string) (models.Hotel, error) {
+	var hotel models.Hotel
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return hotel, err
+	}
+	err = db.Client.HotelCollection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
+	return hotel, err
 }
 
-func (c *MongoClient) Insert(hotel models.Hotel) (models.Hotel, error) {
-	request, err := c.Collection.InsertOne(context.Background(), hotel)
-
-    if err != nil {
-        return hotel, err
-    }
-    
-    // La inserción fue exitosa, devuelve el hotel con su ID actualizado
-    insertedHotel := hotel
-    insertedHotel.ID = request.InsertedID.(primitive.ObjectID)
-    
-    return insertedHotel, nil
-}
-
-func (c *MongoClient) GetHotelById(id string) (models.Hotel, error) {
-    var hotel models.Hotel
-    objID, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        return hotel, err
-    }
-    err = c.Collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
-    return hotel, err
-}
-
-func (c *MongoClient) Update(hotel models.Hotel) (models.Hotel, error) {
-	_, err := c.Collection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
+func Update(hotel models.Hotel) (models.Hotel, error) {
+	_, err := db.Client.HotelCollection.ReplaceOne(context.Background(), bson.M{"_id": hotel.ID}, hotel)
 	if err != nil {
 		return models.Hotel{}, err
 	}
 	return hotel, nil
 }
-
