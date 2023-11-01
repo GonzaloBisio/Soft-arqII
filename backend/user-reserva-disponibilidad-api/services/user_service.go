@@ -1,9 +1,12 @@
 package services
 
+/*
 import (
 	uClient "user-reserva-disponibilidad-api/dao"
 	model "user-reserva-disponibilidad-api/models"
 	e "user-reserva-disponibilidad-api/utils/errors/errors.go"
+	//uDto "user-reserva-disponibilidad-api/dtos/users_dto"
+	// uDto "user-reserva-disponibilidad-api/dtos/uDto/users_dto" siempre que guardo el archivo se me borra
 )
 
 
@@ -11,13 +14,13 @@ import (
 type userService struct{}
 
 type userServiceInterface interface {
-	GetUserById(id int) (users_dto.userDto, e.ApiError)
-	GetUsers() (users_dto.usersDto, e.ApiError)
-	InsertUser(userDto users_dto.userDtoRegister) (users_dto.userDto, e.ApiError)
-	UserLogin(userDto users_dto.userLogin) (users_dto.userLoginResponse, e.ApiError)
+	GetUserById(id int) (uDto.userDto, e.ApiError)
+	GetUsers() (uDto.usersDto, e.ApiError)
+	InsertUser(userDto uDto.userDtoRegister) (uDto.userDto, e.ApiError)
+	UserLogin(userDto uDto.userLogin) (uDto.userLoginResponse, e.ApiError)
 	IsEmailTaken(email string) bool
 	DeleteUserById(id int) e.ApiError
-	UpdateUser(userDto users_dto.userDtoRegister, id int) e.ApiError
+	UpdateUser(userDto uDto.userDtoRegister, id int) e.ApiError
 }
 
 var (
@@ -29,9 +32,9 @@ func init() {
 }
 
 //Readaptada
-func (s *userService) GetUserById(id int) (users_dto.userDto, e.ApiError){
+func (s *userService) GetUserById(id int) (uDto.userDto, e.ApiError){
 	var user model.User = uClient.GetUserById(id)
-	var userDto users_dto.userDto
+	var userDto uDto.userDto
 
 	if user.Id == 0 {
 		return userDto, e.NewBadRequestApiError("User not found")
@@ -45,24 +48,29 @@ func (s *userService) GetUserById(id int) (users_dto.userDto, e.ApiError){
 	return userDto, nil
 }
 
-func (s *userService) GetUsers() (users_dto.usersDto, e.ApiError){
-	var users model.User = uClient.GetAllUsers()
-	usersDto := users_dto.usersDto{
-		Users: make([]users_dto.usersDto, len(users)),
-	}
+func (s *userService) GetUsers() (uDto.usersDto, e.ApiError){
+	var users model.Users = uClient.GetAllUsers()
+	var UsersDto uDto.usersDto
 
-	for i, user := range users {
-		userDto:= users_dto.userDto{
-			Id: user.Id, 
-			Name: user.Name,
-			LastName: user.LastName,
-			Email: user.Email,
-			Admin: user.Admin,
+	for _, user := range users {
+		var UserDto uDto.userDto
+
+		//Si el user es Admin no lo incluye en el return
+
+		if !UserDto.Type {
+			UserDto.Name = user.Name
+			UserDto.LastName = user.LastName
+			UserDto.UserName = user.UserName
+			UserDto.Address = user.Address
+			UserDto.Email = user.Email
+			UserDto.Id = user.Id
+			UserDto.Type = user.Type
 		}
 
-		usersDto.Users[i] = userDto 
+		UsersDto = append(UsersDto, UserDto)
 	}
 
-	return usersDto, nil 
+	return UsersDto, nil
 }
 
+*/
