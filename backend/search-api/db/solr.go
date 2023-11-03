@@ -11,12 +11,12 @@ type Solr struct {
 	Collection string
 }
 
-func NewSolrConnection(collection string) (*Solr, error) {
+func NewSolrConnection() (*Solr, error) {
 	// Crea una nueva instancia de Solr
 	client := solr.NewJSONClient(config.SolrURL)
 
 	return &Solr{
 		Client:     client,
-		Collection: collection,
+		Collection: config.SolRCollection,
 	}, nil
 }

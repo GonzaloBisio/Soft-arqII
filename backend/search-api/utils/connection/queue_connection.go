@@ -15,7 +15,7 @@ var QueueConn *amqp.Connection
 
 func handleError(err error, msg string) {
 	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
+		log.Printf("%s: %s", msg, err)
 	}
 
 }
@@ -31,7 +31,7 @@ func QueueConnection() {
 
 	defer amqpChannel.Close()
 
-	queue, err := amqpChannel.QueueDeclare("add", true, false, false, false, nil)
+	queue, err := amqpChannel.QueueDeclare("hotel", true, false, false, false, nil)
 	handleError(err, "Could not declare `add` queue")
 
 	err = amqpChannel.Qos(1, 0, false) //un mensjae a la vez
@@ -63,7 +63,7 @@ func QueueConnection() {
 				log.Printf("Error decoding JSON: %s", err)
 			}
 
-			log.Printf("ID %d, Action %s", queueDto.Id, queueDto.Action)
+			log.Printf("ID %s, Action %s", queueDto.Id, queueDto.Action)
 
 			if err := d.Ack(false); err != nil {
 				log.Printf("Error acknowledging message : %s", err)

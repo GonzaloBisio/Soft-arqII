@@ -2,9 +2,12 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+
 	"net/http"
 	client "search-api/Client"
+	"search-api/config"
 
 	"search-api/dto"
 
@@ -25,9 +28,14 @@ var (
 	SolrService solrServiceInterface
 )
 
-func (*solrService) AddFromId(id string) error {
-	var hotelDto dto.HotelDto
-	resp, err := http.Get("") //Link a la api de hotel_list
+func init() {
+	SolrService = &solrService{}
+}
+
+func (s *solrService) AddFromId(id string) error {
+	var hotelDto dto.HotelDTO
+
+	resp, err := http.Get(fmt.Sprintf("%shotelId/%s", config.HotelUrl, id)) //Link a la api de hotel_list
 
 	if err != nil {
 		return err
@@ -40,10 +48,11 @@ func (*solrService) AddFromId(id string) error {
 	err = json.Unmarshal(body, &hotelDto)
 
 	if err != nil {
+
 		return err
 	}
 
-	hotelDto, err = client.AddFromId(hotelDto)
+	err = client.Add(hotelDto)
 
 	if err != nil {
 		return err
@@ -51,6 +60,10 @@ func (*solrService) AddFromId(id string) error {
 
 	return nil
 
+}
+
+func (s *solrService) Delete(id string) error {
+	return nil
 }
 
 //HOla
