@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"search-api/config"
 
 	"github.com/stevenferrer/solr-go"
@@ -14,7 +13,7 @@ type Solr struct {
 
 func NewSolrConnection(collection string) (*Solr, error) {
 	// Crea una nueva instancia de Solr
-	client := solr.NewJSONClient(fmt.Sprintf("http://%s:%d/solr", config.SolRhost, config.SolRPort))
+	client := solr.NewJSONClient(config.SolrURL)
 
 	return &Solr{
 		Client:     client,
