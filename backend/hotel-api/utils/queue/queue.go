@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"encoding/json"
+	"hotel-api/dto"
 	"hotel-api/utils/errors"
 
 	"github.com/streadway/amqp"
@@ -41,35 +43,35 @@ func NewRabbitMQQueue(config RabbitMQConfig) (*RabbitMQQueue, errors.ApiError) {
 	}, nil
 }
 
-func (q *RabbitMQQueue) PublishMessage(queueName, message string) errors.ApiError {
-	_, err := q.channel.QueueDeclare(
-		queueName, // Nombre de la cola
-		false,     // Durable
-		false,     // AutoDelete
-		false,     // Exclusive
-		false,     // NoWait
-		nil,       // Args
+func (q *RabbitMQQueue) PublishMessage(queueDto dto.QueueDto) errors.ApiError {
+	qChanel, err := q.channel.QueueDeclare(
+		"hotel", // Nombre de la cola
+		true,    // Durable
+		false,   // AutoDelete
+		false,   // Exclusive
+		false,   // NoWait
+		nil,     // Args
 	)
 	if err != nil {
 		return errors.NewRabbitMQError("Error al declarar la cola de RabbitMQ", http.StatusInternalServerError, errors.CauseList{err.Error()})
 	}
 
-	// Publica el mensaje en la cola
-	err = q.channel.Publish(
-		"",        // Exchange
-		queueName, // Queue
-		false,     // Mandatory
-		false,     // Immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(message),
-		},
-	)
+	body, err := json.Marshal(queueDto)
+	if err != nil {
+		log.Fatal("gol")
+	}
+
+	err = q.channel.Publish("", qChanel.Name, false, false, amqp.Publishing{
+		DeliveryMode: amqp.Persistent,
+		ContentType:  "application/json", // Change content type to JSON
+		Body:         body,
+	})
+
 	if err != nil {
 		return errors.NewRabbitMQError("Error al publicar el mensaje en la cola de RabbitMQ", http.StatusInternalServerError, errors.CauseList{err.Error()})
 	}
 
-	log.Printf("Mensaje enviado a la cola %s: %s", queueName, message)
+	log.Printf("Mensaje enviado a la cola %s: %s", queueDto.Action, queueDto.Id)
 	return nil
 }
 
