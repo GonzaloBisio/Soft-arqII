@@ -9,6 +9,7 @@ import (
 	db "search-api/db"
 
 	dto "search-api/dto"
+	"strings"
 
 	logger "github.com/sirupsen/logrus"
 	"github.com/stevenferrer/solr-go"
@@ -46,26 +47,18 @@ func AddFromId(hotel dto.HotelDTO) (dto.HotelDTO, error) {
 	return hotel, nil
 }
 
-func Add(hotelDto dto.HotelDTO) error {
-	sc, _ := db.NewSolrConnection()
+func Add(hotel dto.HotelDTO) error {
+	client := solr.NewJSONClient("http://localhost:8983/solr/Hotels/")
 	var addHotelDto dto.AddDto
-	addHotelDto.Add = dto.DocDto{Doc: hotelDto}
-	data, err := json.Marshal(addHotelDto)
-	log.Println(string(data))
-	reader := bytes.NewReader(data)
-	if err != nil {
-		return err
-	}
-	resp, err := sc.Client.Update(context.TODO(), sc.Collection, solr.JSON, reader)
-	logger.Debug(resp)
-	if err != nil {
-		return err
-	}
+	addHotelDto.Add = dto.DocDto{Doc: hotel}
+	jsonData := `{"add":{"doc":` + `{"id":"` + hotel.ID + `","name":"` + hotel.Name + `","description":"` + hotel.Description + `"}}}`
 
-	er := sc.Client.Commit(context.TODO(), sc.Collection)
-	if er != nil {
-		logger.Debug("Error committing load")
-		return err
+	data := strings.NewReader(jsonData)
+
+	// Realiza la actualización en Solr
+	_, err := client.Update(context.TODO(), "mi_coleccion", solr.JSON, data)
+	if err != nil {
+		log.Fatalf("Error al agregar el objeto a Solr: %v", err)
 	}
 	return nil
 }
