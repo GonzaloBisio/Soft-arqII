@@ -16,7 +16,7 @@ func mapUrls() {
 	router.GET("/hotelId/:id", controllers.GetHotelByID)
 	router.POST("/insertHotel", controllers.CreateHotel, controllers.PublishMessagePost)
 	router.GET("/getHotels", controllers.GetHotels)
-	router.POST("DeleteHotel/:id", controllers.PublishMessageDelete) //CRear delete de hotel
+	router.POST("DeleteHotel/:id", controllers.DeleteHotelById, controllers.PublishMessageDelete)
 	router.POST("/UpdateHotel", controllers.UpdateHotel, controllers.PublishMessageUpdate)
 	log.Info("Urls Cargadas")
 }

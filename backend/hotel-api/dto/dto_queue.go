@@ -1,6 +1,6 @@
 package dto
 
 type QueueDto struct {
-	Id     string `json:"string"`
+	Id     string `json:"id"`
 	Action string `json:"action"`
 }

@@ -50,7 +50,8 @@ func (q *RabbitMQQueue) PublishMessage(queueDto dto.QueueDto) errors.ApiError {
 		false,   // AutoDelete
 		false,   // Exclusive
 		false,   // NoWait
-		nil,     // Args
+
+		nil, // Args
 	)
 	if err != nil {
 		return errors.NewRabbitMQError("Error al declarar la cola de RabbitMQ", http.StatusInternalServerError, errors.CauseList{err.Error()})

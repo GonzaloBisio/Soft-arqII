@@ -17,7 +17,7 @@ var RabbitMQConfig = queue.RabbitMQConfig{
 }
 
 func PublishMessagePost(c *gin.Context) {
-	c.Params.ByName("id")
+
 	var qDto dto.QueueDto
 
 	log.Println("Mandar mensaje")
@@ -26,8 +26,9 @@ func PublishMessagePost(c *gin.Context) {
 	if err != nil {
 		log.Fatal("gol")
 	}
-	qDto.Action = "PUBLISH"
+	qDto.Action = "INSERT"
 	qDto.Id = c.Params.ByName("id")
+	log.Println(qDto)
 	q.PublishMessage(qDto)
 
 }

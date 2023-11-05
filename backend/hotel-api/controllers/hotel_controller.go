@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"hotel-api/models"
+	"hotel-api/dto"
 	"hotel-api/services"
 	"log"
 	"net/http"
@@ -13,42 +13,26 @@ import (
 
 func CreateHotel(c *gin.Context) {
 	log.Println("Hotel registrado exitosamente")
-	var newHotel models.Hotel
+	var newHotel dto.HotelDTO
+
 	if err := c.ShouldBindJSON(&newHotel); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Error al decodificar la solicitud"})
 		return
 	}
 
-	createdHotel, err := services.HotelService.InsertHotel(newHotel)
+	newHotel, err := services.HotelService.InsertHotel(newHotel)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
 
-	c.AddParam("id", createdHotel.ID.String())
-
-	/*
-		rabbitMQ, err := queue.NewRabbitMQQueue(RabbitMQConfig)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al configurar RabbitMQ"})
-			return
-		}
-		defer rabbitMQ.Close()
-
-		message := "Se creó un nuevo hotel: " + createdHotel.Name
-		queueName := "hotel_creation"
-		err = rabbitMQ.PublishMessage(queueName, message)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al enviar mensaje a la cola RabbitMQ"})
-			return
-		}
-
-		c.JSON(http.StatusCreated, createdHotel)
-	*/
+	c.AddParam("id", newHotel.ID)
+	c.JSON(http.StatusOK, newHotel)
 }
 
 func GetHotelByID(c *gin.Context) {
 	hotelID := c.Param("id")
+	var hotel dto.HotelDTO
 
 	hotel, err := services.HotelService.GetHotelById(hotelID)
 	if err != nil {
@@ -60,7 +44,7 @@ func GetHotelByID(c *gin.Context) {
 }
 
 func UpdateHotel(c *gin.Context) {
-	var updatedHotel models.Hotel
+	var updatedHotel dto.HotelDTO
 	if err := c.ShouldBindJSON(&updatedHotel); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Error al decodificar la solicitud"})
 		return
@@ -71,25 +55,7 @@ func UpdateHotel(c *gin.Context) {
 		c.JSON(err.Status(), err)
 		return
 	}
-	/*
-		rabbitMQ, err := queue.NewRabbitMQQueue(RabbitMQConfig)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al configurar RabbitMQ"})
-			return
-		}
-		defer rabbitMQ.Close()
-
-		message := "Se actualizó un hotel: " + updatedHotel.Name
-		queueName := "hotel_update"
-
-		err = rabbitMQ.PublishMessage(queueName, message)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al enviar mensaje a la cola RabbitMQ"})
-			return
-		}
-
-		c.JSON(http.StatusOK, updatedHotel)
-	*/
+	c.JSON(http.StatusOK, updatedHotel)
 }
 
 func GetHotels(c *gin.Context) {
@@ -101,4 +67,24 @@ func GetHotels(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, hotels)
+}
+
+func DeleteHotelById(c *gin.Context) {
+	hotelID := c.Param("id")
+
+	err := services.HotelService.DeleteHotelById(hotelID)
+
+	if err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	obj := map[string]string{
+
+		"id":     hotelID,
+		"Status": "DELETED",
+	}
+
+	c.AddParam("id", hotelID)
+	c.JSON(http.StatusOK, obj)
 }

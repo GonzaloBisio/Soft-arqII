@@ -2,14 +2,16 @@ package services
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	dao "hotel-api/dao"
+	"hotel-api/dto"
 	"hotel-api/models"
 	"hotel-api/utils/errors"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,10 +22,11 @@ type hotelService struct {
 }
 
 type hotelServiceInterface interface {
-	GetHotels() (models.Hotels, errors.ApiError)
-	GetHotelById(id string) (models.Hotel, errors.ApiError)
-	InsertHotel(hotel models.Hotel) (models.Hotel, errors.ApiError)
-	UpdateHotel(hotel models.Hotel) (models.Hotel, errors.ApiError)
+	GetHotels() (dto.HotelsDto, errors.ApiError)
+	GetHotelById(string) (dto.HotelDTO, errors.ApiError)
+	InsertHotel(dto.HotelDTO) (dto.HotelDTO, errors.ApiError)
+	UpdateHotel(dto.HotelDTO) (dto.HotelDTO, errors.ApiError)
+	DeleteHotelById(string) errors.ApiError
 }
 
 var (
@@ -34,60 +37,77 @@ func init() {
 	HotelService = &hotelService{}
 }
 
-func (s *hotelService) GetHotels() (models.Hotels, errors.ApiError) {
+func (s *hotelService) GetHotels() (dto.HotelsDto, errors.ApiError) {
 	hotels, err := dao.GetAll()
 	if err != nil {
-		return models.Hotels{}, errors.NewInternalServerApiError("Ningun hotel encontrado", err)
+		return dto.HotelsDto{}, errors.NewInternalServerApiError("Ningun hotel encontrado", err)
 	}
 
-	var hotelDtos = make([]models.Hotel, 0)
+	var hotelDtos = make([]dto.HotelDTO, 0)
 	for _, hotel := range hotels {
 		hotelDto := models.Hotel{
 			ID:          hotel.ID,
 			Name:        hotel.Name,
 			Description: hotel.Description,
 		}
-		hotelDtos = append(hotelDtos, hotelDto)
+		hotelDtos = append(hotelDtos, ConvertToHotelDTO(hotelDto))
 	}
 
-	final := models.Hotels{
+	final := dto.HotelsDto{
 		Hotels: hotelDtos,
 	}
 
 	return final, nil
 }
 
-func (s *hotelService) GetHotelById(id string) (models.Hotel, errors.ApiError) {
-	objectID, err := primitive.ObjectIDFromHex(id)
+func (s *hotelService) GetHotelById(id string) (dto.HotelDTO, errors.ApiError) {
+	var hotel dto.HotelDTO
+	ID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return models.Hotel{}, errors.NewBadRequestApiError(err.Error())
+		return hotel, errors.NewBadRequestApiError(err.Error())
 	}
 
-	hotel, err := dao.GetHotelById(objectID.Hex()) // Convierte ObjectID a cadena
-	if err != nil {
-		return models.Hotel{}, errors.NewBadRequestApiError(err.Error())
-	}
+	mhotel, err := dao.GetHotelById(ID) // Convierte ObjectID a cadena
 
+	if err != nil {
+		return hotel, errors.NewBadRequestApiError(err.Error())
+	}
+	hotel = ConvertToHotelDTO(mhotel)
 	return hotel, nil
 }
 
-func (s *hotelService) InsertHotel(hotel models.Hotel) (models.Hotel, errors.ApiError) {
+func (s *hotelService) InsertHotel(hotel dto.HotelDTO) (dto.HotelDTO, errors.ApiError) {
 
-	hotelInsertado, err := dao.Insert(hotel)
+	hotelInsertado, err := dao.Insert(ConvertToHotelModel(hotel))
 
 	if err != nil {
 		return hotel, errors.NewInternalServerApiError("Error al insertar el hotel en la base de datos", err)
 	}
-	return hotelInsertado, nil
+	return ConvertToHotelDTO(hotelInsertado), nil
 }
 
-func (s *hotelService) UpdateHotel(hotel models.Hotel) (models.Hotel, errors.ApiError) {
+func (s *hotelService) UpdateHotel(hotel dto.HotelDTO) (dto.HotelDTO, errors.ApiError) {
 
-	_, err := dao.Update(hotel)
+	_, err := dao.Update(ConvertToHotelModel(hotel))
 	if err != nil {
-		return models.Hotel{}, errors.NewInternalServerApiError("Error al actualizar el hotel en la base de datos", err)
+		return dto.HotelDTO{}, errors.NewInternalServerApiError("Error al actualizar el hotel en la base de datos", err)
 	}
 	return hotel, nil
+}
+
+func (s *hotelService) DeleteHotelById(id string) errors.ApiError {
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.NewBadRequestApiError(err.Error())
+	}
+
+	err = dao.DeleteHotelById(objectID) // Convierte ObjectID a cadena
+
+	if err != nil {
+		return errors.NewBadRequestApiError(err.Error())
+	}
+
+	return nil
 }
 
 func handleFileupload(c *fiber.Ctx) error {
@@ -153,4 +173,26 @@ func handleDeleteImage(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"status": 201, "message": "Image deleted successfully", "data": nil})
+}
+
+func ConvertToHotelDTO(hotel models.Hotel) dto.HotelDTO {
+	return dto.HotelDTO{
+		ID:          hotel.ID.Hex(),
+		Name:        hotel.Name,
+		Description: hotel.Description,
+		Fotos:       hotel.Fotos,
+		Amenities:   hotel.Amenities,
+	}
+}
+
+func ConvertToHotelModel(hotelDTO dto.HotelDTO) models.Hotel {
+	id, _ := primitive.ObjectIDFromHex(hotelDTO.ID)
+
+	return models.Hotel{
+		ID:          id,
+		Name:        hotelDTO.Name,
+		Description: hotelDTO.Description,
+		Fotos:       hotelDTO.Fotos,
+		Amenities:   hotelDTO.Amenities,
+	}
 }

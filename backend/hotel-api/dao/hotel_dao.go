@@ -28,7 +28,7 @@ func GetAll() ([]models.Hotel, error) {
 }
 
 func Insert(hotel models.Hotel) (models.Hotel, error) {
-	// Omit configuring the _id field
+
 	request, err := db.Client.HotelCollection.InsertOne(context.Background(), hotel)
 
 	if err != nil {
@@ -42,13 +42,11 @@ func Insert(hotel models.Hotel) (models.Hotel, error) {
 	return insertedHotel, nil
 }
 
-func GetHotelById(id string) (models.Hotel, error) {
+func GetHotelById(objID primitive.ObjectID) (models.Hotel, error) {
 	var hotel models.Hotel
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return hotel, err
-	}
-	err = db.Client.HotelCollection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
+
+	err := db.Client.HotelCollection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&hotel)
+
 	return hotel, err
 }
 
@@ -58,4 +56,19 @@ func Update(hotel models.Hotel) (models.Hotel, error) {
 		return models.Hotel{}, err
 	}
 	return hotel, nil
+}
+
+func DeleteHotelById(id primitive.ObjectID) error {
+
+	response, err := db.Client.HotelCollection.DeleteOne(context.Background(), bson.M{"_id": id})
+
+	if err != nil {
+		return err
+	}
+	if response.DeletedCount == 0 {
+
+		return nil // ACA HAY QUE CREAR UN ERROR DE QUE NO SE ENCONTRO HOTEL @AgusGlaiel
+	}
+
+	return nil
 }
