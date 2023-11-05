@@ -13,7 +13,11 @@ func AddFromId(id string) error {
 	return nil
 }
 
-func Delete(id string) error {
+func DeleteFromId(id string) error {
+	err := services.SolrService.DeleteFromId(id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

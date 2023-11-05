@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 
 	db "search-api/db"
@@ -46,4 +47,27 @@ func AddFromId(hotel dto.HotelDTO) (dto.HotelDTO, error) {
 		return hotel, err
 	}
 	return hotel, nil
+}
+
+func DeleteFromId(id string) error {
+	var deleteDto dto.DeleteDto
+	deleteDto.Delete = dto.DeleteDoc{Query: fmt.Sprintf("id:%s", id)}
+	data, err := json.Marshal(deleteDto)
+	reader := bytes.NewReader(data)
+
+	if err != nil {
+		return err
+	}
+	_, err = solrDB.Client.Update(context.TODO(), solrDB.Collection, solr.JSON, reader)
+
+	if err != nil {
+		return err
+	}
+
+	err = solrDB.Client.Commit(context.TODO(), solrDB.Collection)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

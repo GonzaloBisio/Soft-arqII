@@ -79,7 +79,7 @@ func QueueConnection() {
 				}
 
 			} else if queueDto.Action == "DELETE" {
-				err := controller.Delete(queueDto.Id)
+				err := controller.DeleteFromId(queueDto.Id)
 
 				if err != nil {
 					handleError(err, "Error inserting or deleting from Solr")

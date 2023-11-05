@@ -21,7 +21,7 @@ type solrService struct {
 
 type solrServiceInterface interface {
 	AddFromId(id string) error
-	Delete(id string) error
+	DeleteFromId(id string) error
 }
 
 var (
@@ -36,11 +36,9 @@ func (s *solrService) AddFromId(id string) error {
 	var hotelDto dto.HotelDTO
 
 	resp, err := http.Get(fmt.Sprintf("%shotelId/%s", config.HotelUrl, id)) //Link a la api de hotel_list
-
 	if err != nil {
 		return err
 	}
-
 	var body []byte
 
 	body, _ = io.ReadAll(resp.Body)
@@ -62,8 +60,21 @@ func (s *solrService) AddFromId(id string) error {
 
 }
 
-func (s *solrService) Delete(id string) error {
+func (s *solrService) DeleteFromId(id string) error {
+
+	_, err := http.Get(fmt.Sprintf("%shotelId/%s", config.HotelUrl, id)) //Link a la api de hotel_list
+	if err == nil {
+		return fmt.Errorf("Hotel aun existente")
+	}
+
+	err = client.DeleteFromId(id)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
+
 }
 
 //HOla
