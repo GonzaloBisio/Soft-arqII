@@ -52,7 +52,7 @@ func (s *solrService) AddFromId(id string) error {
 		return err
 	}
 
-	err = client.Add(hotelDto)
+	hotelDto, err = client.AddFromId(hotelDto)
 
 	if err != nil {
 		return err

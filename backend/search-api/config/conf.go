@@ -5,9 +5,9 @@ import "fmt"
 var (
 	solRhost       = "localhost"
 	solRPort       = 8983
-	SolRCollection = "Hotels"
+	SolRCollection = "hotels"
 
-	SolrURL = fmt.Sprintf("http://%s:%d/solr/", solRhost, solRPort)
+	SolrURL = fmt.Sprintf("http://%s:%d", solRhost, solRPort)
 
 	rabbithost     = "localhost"
 	rabbitPort     = 5672
