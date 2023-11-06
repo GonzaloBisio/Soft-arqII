@@ -17,8 +17,8 @@ var (
 func DatabaseCon() {
 	//Parametros de coneccion
 	DBNombre := "arqsoft2"
-	DBUser := "root"
-	DBPass := "password"
+	DBUser := "usuario"
+	DBPass := "usuario"
 	DBHost := "localhost"
 
 	db, err = gorm.Open("mysql", DBUser+":"+DBPass+"@tcp("+DBHost+":3306)/"+DBNombre+"?charset=utf8&parseTime=True")

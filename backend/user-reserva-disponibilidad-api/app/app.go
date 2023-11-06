@@ -34,7 +34,7 @@ func StartApp() {
 
 	db2.DatabaseCon()
 	db2.StartDbEngine()
-	router.Run(":8002")
+	router.Run(":8003")
 	log.Info("Starting Server")
 
 	cache.Init_cache()
