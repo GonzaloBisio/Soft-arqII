@@ -6,6 +6,8 @@ type HotelDTO struct {
 	Description string   `json:"description"`
 	Fotos       []string `json:"fotos"`
 	Amenities   []string `json:"amenities"`
+	Country     string   `json:"country"`
+	City        string   `json:"city"`
 }
 
 type HotelsDto struct {
