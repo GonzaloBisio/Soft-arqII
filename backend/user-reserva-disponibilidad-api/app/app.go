@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -46,12 +45,12 @@ func StartApp() {
 	availability, err := cache.Get(key)
 	if err != nil {
 		if err.Status() == http.StatusNotFound {
-			fmt.Println("La llave no se encontró en el caché")
+			log.Println("La llave no se encontró en el caché")
 		} else {
-			fmt.Println("Error al recuperar datos del caché:", err)
+			log.Println("Error al recuperar datos del caché:", err)
 		}
 	} else {
-		fmt.Println("Datos recuperados del caché:", availability)
+		log.Println("Datos recuperados del caché:", availability)
 	}
 	go func() {
 		time.Sleep(10 * time.Second)
@@ -60,11 +59,11 @@ func StartApp() {
 	availability, err = cache.Get(key)
 	if err != nil {
 		if err.Status() == http.StatusNotFound {
-			fmt.Println("La llave no se encontró en el caché")
+			log.Println("La llave no se encontró en el caché")
 		} else {
-			fmt.Println("Error al recuperar datos del caché:", err)
+			log.Println("Error al recuperar datos del caché:", err)
 		}
 	} else {
-		fmt.Println("Datos recuperados del caché:", availability)
+		log.Println("Datos recuperados del caché:", availability)
 	}
 }

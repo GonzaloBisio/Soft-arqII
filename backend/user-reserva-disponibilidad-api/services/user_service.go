@@ -97,6 +97,7 @@ func (s *userService) InsertUser(userDto dtos.UserDto) (dtos.UserDto, e.ApiError
 	user.Adress = userDto.Address
 	user.Email = userDto.Email
 	user.Type = userDto.Type
+	user.DNI = userDto.DNI
 
 	user = userClient.InsertUser(user)
 
