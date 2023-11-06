@@ -17,10 +17,10 @@ var (
 func DatabaseCon() {
 	//Parametros de coneccion
 	DBNombre := "arqsoft2"
-	DBUser := "root"
-	DBPass := "password"
-	DBHost := "localhost"
-
+	DBUser := "usuario"   //root
+	DBPass := "usuario"   //password
+	DBHost := "localhost" //JULIAN: Tengo mysql nativo en ubuntu y no me deja lo de la maquina virtual
+	//POr eso dejo esto asi para mi xd
 	db, err = gorm.Open("mysql", DBUser+":"+DBPass+"@tcp("+DBHost+":3306)/"+DBNombre+"?charset=utf8&parseTime=True")
 
 	if err != nil {

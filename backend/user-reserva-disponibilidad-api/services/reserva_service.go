@@ -1,6 +1,7 @@
 package services
 
 import (
+	"log"
 	"time"
 	cl "user-reserva-disponibilidad-api/clients"
 	cli "user-reserva-disponibilidad-api/clients"
@@ -14,11 +15,11 @@ type reservationService struct {
 
 type reservationServicesInterface interface {
 	NewReserva(dto reservationDTO.ReservaDto) (reservationDTO.ReservaDto, error)
-	InsertReserva(dto reservationDTO.ReservaDto) (reservationDTO.ReservaDto, error)
+	//InsertReserva(dto reservationDTO.ReservaDto) (reservationDTO.ReservaDto, error)
 	GetReservaById(int) reservationDTO.ReservaDto
 	GetReservas() ([]reservationDTO.ReservaDto, e.ErrorApi)
 	GetReservasByUserId(int) ([]reservationDTO.ReservaDto, e.ErrorApi)
-	Disponibilidad_de_reserva(dto reservationDTO.ReservaDto) (bool, error)
+	Disponibilidad_de_reserva(reserva reservationDTO.ReservationCreateDto) (bool, error)
 }
 
 var (
@@ -26,20 +27,35 @@ var (
 	Layoutd            = "2006-01-02"
 )
 
+func init() {
+	ReservationService = &reservationService{}
+}
+
 func (s *reservationService) NewReserva(reserva reservationDTO.ReservaDto) (reservationDTO.ReservaDto, error) {
+	log.Println("llegue al client")
 	var Mreserva model.Reservation
-	var rf reservationDTO.ReservaDto
+
 	Mreserva.HotelID = reserva.HotelId
 	Mreserva.UserID = reserva.UserId
+	initialP, err := time.Parse(Layoutd, reserva.StartDate)
 
-	rf.EndDate = Mreserva.FinalDate.Format(Layoutd)
-	rf.HotelId = Mreserva.HotelID
-	rf.StartDate = Mreserva.InitialDate.Format(Layoutd)
-	rf.UserId = Mreserva.UserID
+	if err != nil {
+		return reserva, err
+	}
+	Mreserva.InitialDate = initialP
+	endP, err := time.Parse(Layoutd, reserva.StartDate)
 
-	cli.NewReserva(Mreserva)
+	if err != nil {
+		return reserva, err
+	}
+	Mreserva.FinalDate = endP
 
-	return rf, nil
+	log.Println(Mreserva.FinalDate)
+	log.Println(Mreserva.InitialDate)
+
+	Mreserva = cli.NewReserva(Mreserva)
+	reserva.Id = Mreserva.Id
+	return reserva, nil
 }
 
 func (s *reservationService) GetReservaById(id int) reservationDTO.ReservaDto {

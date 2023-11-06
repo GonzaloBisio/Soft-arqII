@@ -2,12 +2,14 @@ package cache
 
 import (
 	"fmt"
+
 	"github.com/bradfitz/gomemcache/memcache"
+
+	"user-reserva-disponibilidad-api/dtos"
+	e "user-reserva-disponibilidad-api/utils/errors"
 
 	json "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
-	"user-reserva-disponibilidad-api/dtos"
-	e "user-reserva-disponibilidad-api/utils/errors"
 )
 
 var (

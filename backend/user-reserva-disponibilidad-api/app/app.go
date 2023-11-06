@@ -1,12 +1,13 @@
 package app
 
 import (
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 	"user-reserva-disponibilidad-api/cache"
 	db2 "user-reserva-disponibilidad-api/db"
+
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 /*func init() {
@@ -34,7 +35,7 @@ func StartApp() {
 
 	db2.DatabaseCon()
 	db2.StartDbEngine()
-	router.Run(":8002")
+	router.Run(":8004")
 	log.Info("Starting Server")
 
 	cache.Init_cache()

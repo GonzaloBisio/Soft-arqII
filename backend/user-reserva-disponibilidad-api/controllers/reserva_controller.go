@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"user-reserva-disponibilidad-api/dtos/reserva_dto"
+	dtos "user-reserva-disponibilidad-api/dtos/reserva_dto"
 	"user-reserva-disponibilidad-api/services"
 	se "user-reserva-disponibilidad-api/services"
 
@@ -27,13 +27,15 @@ func (e CustomError) Status() int {
 func NewReserva(c *gin.Context) {
 	var newReserva dtos.ReservaDto
 	log.Println("llegue al controller")
+
 	if err := c.ShouldBindJSON(&newReserva); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Error al decodificar la solicitud"})
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	log.Println("pasa al service")
-	newReserva, err := services.ReservationService.InsertReserva(newReserva)
+	log.Println(newReserva)
+	newReserva, err := services.ReservationService.NewReserva(newReserva)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -87,13 +89,14 @@ func Disponibilidad_de_reserva(ctx *gin.Context) {
 	create.EndDate = final
 	create.UserId = idU
 
-	reservationDTO, err := se.ReservationService.Disponibilidad_de_reserva(create)
+	/*reservationDTO, err := se.ReservationService.Disponibilidad_de_reserva(create)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, reservationDTO)
 	}
+	*/
 }
 
 func GetReservasByUserId(ctx *gin.Context) {
