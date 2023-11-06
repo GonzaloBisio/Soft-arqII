@@ -2,13 +2,13 @@ package models
 
 type User struct {
 	Id       int    `gorm:"primaryKey"`
-	Name     string `gorm:"type:varchar(250);not null"`
-	LastName string `gorm:"type:varchar(250);not null"`
-	Email    string `gorm:"type:varchar(50);not null;unique"`
-	Password string `gorm:"type:varchar(150);not null"`
-	Admin    int
-
-	Bookings Bookings `gorm:"foreignKey:UserId"`
+	Name     string `gorm:"type:varchar(300);not null"`
+	LastName string `gorm:"type:varchar(300);not null"`
+	UserName string `gorm:"type:varchar(200);not null;unique"`
+	Address  string `gorm:"type:varchar(200)"`
+	Password string `gorm:"type:varchar(500);not null"`
+	Email    string `gorm:"type:varchar(320);not null;unique"`
+	Type     bool   `gorm:"not null;default:false"`
 }
 
 type Users []User

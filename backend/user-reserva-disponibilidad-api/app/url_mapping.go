@@ -3,17 +3,19 @@ package app
 import (
 	log "github.com/sirupsen/logrus"
 	resrc "user-reserva-disponibilidad-api/controllers"
+
+	userController "user-reserva-disponibilidad-api/controllers"
 )
 
 func mapUrls() {
 
-	//User
-	/*	router.GET("/userId/:id", userc.GetUserById)
-		router.POST("/addUsuario/:name/:LastName/:DNI/:Password/:Email/:Admin", userc.AddUser)
-		routerAdmin.GET("/users", userc.GetUsers)
-		router.POST("/login", userc.Login)*/
+	// Users Mapping
+	router.GET("/user/:id", userController.GetUserById)
+	router.GET("/user", userController.GetUsers)
+	router.POST("/user", userController.UserInsert) // Sign In
 
 	//Reservation
+	router.GET("/check", resrc.CheckStatus)
 	router.POST("/reserva", resrc.NewReserva)
 	router.GET("/reserva/:id", resrc.GetReservaById)
 	router.GET("/reservas", resrc.GetReservas)

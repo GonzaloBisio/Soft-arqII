@@ -1,14 +1,12 @@
 package app
 
 import (
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"os"
 	db2 "user-reserva-disponibilidad-api/db"
 )
 
-func init() {
+/*func init() {
 
 	router = gin.Default()
 
@@ -23,19 +21,17 @@ func init() {
 	log.SetOutput(os.Stdout)
 	//log.SetFormatter(&log.JSONFormatter{})
 	log.Info("Starting logger system")
-}
+}*/
 
 var router *gin.Engine
 
 func StartApp() {
-
+	router = gin.Default()
 	mapUrls()
 
 	db2.DatabaseCon()
 	db2.StartDbEngine()
-
-	router := gin.Default()
-	router.Run("localhost:8002")
+	router.Run(":8002")
 	log.Info("Starting Server")
 
 }

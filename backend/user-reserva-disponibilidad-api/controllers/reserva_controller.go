@@ -1,32 +1,52 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"user-reserva-disponibilidad-api/dtos/reserva_dto"
+	"user-reserva-disponibilidad-api/services"
 	se "user-reserva-disponibilidad-api/services"
 
 	"github.com/gin-gonic/gin"
 )
 
-func NewReserva(ctx *gin.Context) {
+type CustomError struct {
+	Message string
+	Code    int
+}
+
+func (e CustomError) Error() string {
+	return e.Message
+}
+
+func (e CustomError) Status() int {
+	return e.Code
+}
+
+func NewReserva(c *gin.Context) {
 	var newReserva dtos.ReservaDto
-
-	if err := ctx.ShouldBindJSON(&newReserva); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error al decodificar la solicitud"})
+	log.Println("llegue al controller")
+	if err := c.ShouldBindJSON(&newReserva); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error al decodificar la solicitud"})
 		return
 	}
 
-	reservationDTO, err := se.ReservationService.NewReserva(newReserva)
-
+	log.Println("pasa al service")
+	newReserva, err := services.ReservationService.InsertReserva(newReserva)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, reservationDTO)
-	ctx.AddParam("id", strconv.Itoa(newReserva.Id))
-	ctx.JSON(http.StatusOK, newReserva)
+	c.AddParam("id", strconv.Itoa(newReserva.Id))
+	c.JSON(http.StatusOK, newReserva)
+}
+
+func CheckStatus(ctx *gin.Context) {
+	log.Println("CheckStatus")
+	ctx.JSON(http.StatusOK, `OK`)
+
 }
 
 func GetReservaById(ctx *gin.Context) {

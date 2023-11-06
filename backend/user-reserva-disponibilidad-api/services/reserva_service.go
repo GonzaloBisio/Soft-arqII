@@ -3,6 +3,7 @@ package services
 import (
 	"time"
 	cl "user-reserva-disponibilidad-api/clients"
+	cli "user-reserva-disponibilidad-api/clients"
 	reservationDTO "user-reserva-disponibilidad-api/dtos/reserva_dto"
 	e "user-reserva-disponibilidad-api/errors"
 	"user-reserva-disponibilidad-api/model"
@@ -25,33 +26,18 @@ var (
 	Layoutd            = "2006-01-02"
 )
 
-func (s *reservationService) NewReserva(reserva reservationDTO.ReservationCreateDto) (reservationDTO.ReservaDto, error) {
+func (s *reservationService) NewReserva(reserva reservationDTO.ReservaDto) (reservationDTO.ReservaDto, error) {
 	var Mreserva model.Reservation
 	var rf reservationDTO.ReservaDto
 	Mreserva.HotelID = reserva.HotelId
-
-	parseInitial, err := time.Parse(Layoutd, reserva.InitialDate)
-	if err != nil {
-		return rf, err
-	}
-	Mreserva.InitialDate = parseInitial
-
-	parseFinal, err := time.Parse(Layoutd, reserva.FinalDate)
-	if err != nil {
-		return rf, err
-	}
-	Mreserva.FinalDate = parseFinal
-
 	Mreserva.UserID = reserva.UserId
-
-	if parseFinal.Before(parseInitial) {
-		return rf, e.NewBadRequestErrorApi("Fecha inicial antes de la final")
-	}
 
 	rf.EndDate = Mreserva.FinalDate.Format(Layoutd)
 	rf.HotelId = Mreserva.HotelID
 	rf.StartDate = Mreserva.InitialDate.Format(Layoutd)
 	rf.UserId = Mreserva.UserID
+
+	cli.NewReserva(Mreserva)
 
 	return rf, nil
 }

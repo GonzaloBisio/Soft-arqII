@@ -1,6 +1,6 @@
 package cache
 
-/*import (
+import (
 	"fmt"
 	"github.com/bradfitz/gomemcache/memcache"
 
@@ -42,27 +42,16 @@ func Get(key string) (dtos.Availability, e.ApiError) {
 	fmt.Println("paso la linea 36")
 	if err != nil {
 		if err == memcache.ErrCacheMiss {
-			return dto.Availability{}, e.NewNotFoundApiError(fmt.Sprintf("item %s not found", key))
+			return dtos.Availability{}, e.NewNotFoundApiError(fmt.Sprintf("item %s not found", key))
 		}
 		errorMsg := fmt.Sprintf("Error getting item from cache: %s", key)
 		fmt.Println(errorMsg)
-		return dto.Availability{}, e.NewInternalServerApiError(errorMsg, err)
+		return dtos.Availability{}, e.NewInternalServerApiError(errorMsg, err)
 	}
-	var responseDto dto.Availability
+	var responseDto dtos.Availability
 	if err := json.Unmarshal(response.Value, &responseDto); err != nil {
-		return dto.Availability{}, e.NewInternalServerApiError(fmt.Sprintf("error getting item %s", key), err)
+		return dtos.Availability{}, e.NewInternalServerApiError(fmt.Sprintf("error getting item %s", key), err)
 
 	}
 	return responseDto, nil
-}*/
-
-// func createCacheKey(id int, startDate int) string {
-//     return fmt.Sprintf("reservation:%d:%d", id, startDate)
-// }
-// func main() {
-//     Init_cache()
-//     value := []byte("some data")
-//     Set(1, 20231009, value)
-//     result := Get(1, 20231009)
-//     fmt.Printf("Result: %s\n", string(result))
-// }
+}

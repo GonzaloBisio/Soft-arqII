@@ -1,6 +1,6 @@
 package dtos
 
-type userDto struct {
+type UserDto struct {
 	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	LastName string `json:"last_name"`
@@ -9,6 +9,7 @@ type userDto struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
 	Type     bool   `json:"type"`
+	DNI      string `json:"dni"`
 }
 
-type usersDto []userDto
+type UsersDto []UserDto
