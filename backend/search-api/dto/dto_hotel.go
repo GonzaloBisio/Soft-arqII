@@ -10,3 +10,9 @@ type HotelDTO struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
+
+type AvailabilityResponse struct {
+	Status bool `json:"ok_to_book"`
+}
+
+type HotelsDto []HotelDto

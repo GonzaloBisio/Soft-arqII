@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
+	"search-api/config"
 	db "search-api/db"
 
 	dto "search-api/dto"
@@ -70,4 +72,26 @@ func DeleteFromId(id string) error {
 	}
 
 	return nil
+}
+
+func SerchQuery(query string, field string) (dto.HotelsDto, error) {
+	var response dto.SolrResponseDto
+	var hotelsDto dto.HotelsDto
+	resp, err := http.Get(fmt.Sprintf("http://%s/solr/hotelSearch/select?q=%s%s%s", config.SolrURL, field, "%3A", query))
+
+	if err != nil {
+		return hotelsDto, err
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		log.Printf("Response Body: %s", resp.Body) // Add this line
+		log.Printf("Error: %s", err.Error())
+		return hotelsDto, err
+	}
+	hotelsDto = response.Response.Docs
+
+	log.Printf("hotels:", hotelsDto)
+
+	return hotelsDto, nil
 }
