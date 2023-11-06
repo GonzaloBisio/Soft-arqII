@@ -6,15 +6,16 @@ import (
 	"user-reserva-disponibilidad-api/cache"
 	db2 "user-reserva-disponibilidad-api/db"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
 
-/*func init() {
+var router *gin.Engine
 
+func init() {
 	router = gin.Default()
 
-	router.Static("/images", "./images")
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"*"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE"}
@@ -22,20 +23,15 @@ import (
 	config.AddExposeHeaders("X-Total-Count")
 	router.Use(cors.New(config))
 
-	log.SetOutput(os.Stdout)
-	//log.SetFormatter(&log.JSONFormatter{})
-	log.Info("Starting logger system")
-}*/
-
-var router *gin.Engine
+}
 
 func StartApp() {
-	router = gin.Default()
+
 	mapUrls()
 
 	db2.DatabaseCon()
 	db2.StartDbEngine()
-	router.Run(":8004")
+	router.Run(":8003")
 	log.Info("Starting Server")
 
 	cache.Init_cache()
