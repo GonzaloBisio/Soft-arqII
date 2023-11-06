@@ -1,6 +1,6 @@
 package cache
 
-import (
+/*import (
 	"fmt"
 	"github.com/bradfitz/gomemcache/memcache"
 
@@ -54,7 +54,7 @@ func Get(key string) (dtos.Availability, e.ApiError) {
 
 	}
 	return responseDto, nil
-}
+}*/
 
 // func createCacheKey(id int, startDate int) string {
 //     return fmt.Sprintf("reservation:%d:%d", id, startDate)
