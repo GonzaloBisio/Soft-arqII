@@ -2,13 +2,22 @@ package app
 
 import (
 	log "github.com/sirupsen/logrus"
-	hotelController "user-reserva-disponibilidad-api/controllers"
+	resrc "user-reserva-disponibilidad-api/controllers"
 )
 
 func mapUrls() {
 
-	router.GET("/hotels", hotelController.GetHotels)
-	router.POST("/hotels", hotelController.AddHotel)
-	router.GET("/hotels/:id", hotelController.GetHotelByID)
+	//User
+	/*	router.GET("/userId/:id", userc.GetUserById)
+		router.POST("/addUsuario/:name/:LastName/:DNI/:Password/:Email/:Admin", userc.AddUser)
+		routerAdmin.GET("/users", userc.GetUsers)
+		router.POST("/login", userc.Login)*/
+
+	//Reservation
+	router.POST("/reserva", resrc.NewReserva)
+	router.GET("/reserva/:id", resrc.GetReservaById)
+	router.GET("/reservas", resrc.GetReservas)
+	router.GET("/reservaByUserId/:user_id", resrc.GetReservasByUserId)
+
 	log.Info("Urls Cargadas")
 }

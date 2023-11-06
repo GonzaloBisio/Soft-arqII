@@ -1,12 +1,11 @@
 package app
 
 import (
-	"database/sql"
-	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"os"
+	db2 "user-reserva-disponibilidad-api/db"
 )
 
 func init() {
@@ -32,13 +31,8 @@ func StartApp() {
 
 	mapUrls()
 
-	//DATABASE CONNECTION
-	db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/test")
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-	fmt.Println("Successfull conection to MySql!")
+	db2.DatabaseCon()
+	db2.StartDbEngine()
 
 	router := gin.Default()
 	router.Run("localhost:8002")
