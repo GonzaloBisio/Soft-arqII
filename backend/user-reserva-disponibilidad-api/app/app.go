@@ -1,8 +1,12 @@
 package app
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"net/http"
+	"time"
+	"user-reserva-disponibilidad-api/cache"
 	db2 "user-reserva-disponibilidad-api/db"
 )
 
@@ -34,4 +38,33 @@ func StartApp() {
 	router.Run(":8002")
 	log.Info("Starting Server")
 
+	cache.Init_cache()
+	data := []byte(`{"key": "value"}`)
+	cache.Set("mi_llave", data, 10)
+
+	key := "mi_llave"
+	availability, err := cache.Get(key)
+	if err != nil {
+		if err.Status() == http.StatusNotFound {
+			fmt.Println("La llave no se encontró en el caché")
+		} else {
+			fmt.Println("Error al recuperar datos del caché:", err)
+		}
+	} else {
+		fmt.Println("Datos recuperados del caché:", availability)
+	}
+	go func() {
+		time.Sleep(10 * time.Second)
+	}()
+
+	availability, err = cache.Get(key)
+	if err != nil {
+		if err.Status() == http.StatusNotFound {
+			fmt.Println("La llave no se encontró en el caché")
+		} else {
+			fmt.Println("Error al recuperar datos del caché:", err)
+		}
+	} else {
+		fmt.Println("Datos recuperados del caché:", availability)
+	}
 }
