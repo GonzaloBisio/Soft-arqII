@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 
 	"net/http"
 	client "search-api/Client"
@@ -22,6 +23,7 @@ type solrService struct {
 type solrServiceInterface interface {
 	AddFromId(id string) error
 	DeleteFromId(id string) error
+	GetQuery(query string, field string) (dto.HotelsDto, error)
 }
 
 var (
@@ -62,12 +64,7 @@ func (s *solrService) AddFromId(id string) error {
 
 func (s *solrService) DeleteFromId(id string) error {
 
-	_, err := http.Get(fmt.Sprintf("%shotelId/%s", config.HotelUrl, id)) //Link a la api de hotel_list
-	if err == nil {
-		return fmt.Errorf("Hotel aun existente")
-	}
-
-	err = client.DeleteFromId(id)
+	err := client.DeleteFromId(id)
 
 	if err != nil {
 		return err
@@ -77,4 +74,25 @@ func (s *solrService) DeleteFromId(id string) error {
 
 }
 
-//HOla
+func (s *solrService) GetQuery(query string, field string) (dto.HotelsDto, error) {
+	var response dto.SolrResponseDto
+	var hotelsDto dto.HotelsDto
+	q, err := http.Get(fmt.Sprintf("http://%s/solr/hotelSearch/select?q=%s%s%s", config.SolrURL, field, "%3A", query))
+
+	if err != nil {
+		return hotelsDto, err
+	}
+
+	defer q.Body.Close()
+	err = json.NewDecoder(q.Body).Decode(&response)
+	if err != nil {
+		log.Printf("Response Body: %s", q.Body) // Add this line
+		log.Printf("Error: %s", err.Error())
+		return hotelsDto, err
+	}
+	hotelsDto = response.Response.Docs
+
+	log.Printf("hotels:", hotelsDto)
+
+	return hotelsDto, nil
+}

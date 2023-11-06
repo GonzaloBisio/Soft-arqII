@@ -14,3 +14,14 @@ type DeleteDoc struct {
 type DeleteDto struct {
 	Delete DeleteDoc `json:"delete"`
 }
+
+type ResponseDto struct {
+	NumFound int       `json:"numFound"`
+	Docs     HotelsDto `json:"docs"`
+}
+
+type SolrResponseDto struct {
+	Response ResponseDto `json:"response"`
+}
+
+type SolrResponsesDto []SolrResponseDto

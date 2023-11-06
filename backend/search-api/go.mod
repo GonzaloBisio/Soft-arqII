@@ -3,8 +3,8 @@ module search-api
 go 1.20
 
 require (
-	github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874
 	github.com/gin-gonic/gin v1.9.1
+	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/json-iterator/go v1.1.12
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stevenferrer/solr-go v0.3.3
@@ -30,10 +30,11 @@ require (
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
